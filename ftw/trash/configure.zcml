@@ -5,27 +5,27 @@
     xmlns:upgrade-step="http://namespaces.zope.org/ftw.upgrade"
     i18n_domain="ftw.trash">
 
-    <five:registerPackage package="." initialize=".initialize" />
+  <five:registerPackage package="." initialize=".initialize" />
 
-    <genericsetup:registerProfile
-        name="default"
-        title="ftw.trash default"
-        directory="profiles/default"
-        provides="Products.GenericSetup.interfaces.EXTENSION"
-        />
+  <genericsetup:registerProfile
+      name="default"
+      title="ftw.trash default"
+      directory="profiles/default"
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
 
-    <genericsetup:registerProfile
-        name="uninstall"
-        title="ftw.trash : uninstall"
-        directory="profiles/uninstall"
-        provides="Products.GenericSetup.interfaces.EXTENSION"
-        for="Products.CMFPlone.interfaces.IMigratingPloneSiteRoot"
-        />
+  <genericsetup:registerProfile
+      name="uninstall"
+      title="ftw.trash : uninstall"
+      directory="profiles/uninstall"
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      for="Products.CMFPlone.interfaces.IMigratingPloneSiteRoot"
+      />
 
-    <include package="ftw.upgrade" file="meta.zcml" />
-    <upgrade-step:directory
-        profile="ftw.trash:default"
-        directory="upgrades"
-        />
+  <include package="ftw.upgrade" file="meta.zcml" />
+  <upgrade-step:directory
+      profile="ftw.trash:default"
+      directory="upgrades"
+      />
 
 </configure>
