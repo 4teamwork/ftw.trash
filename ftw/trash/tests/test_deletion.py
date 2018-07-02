@@ -9,6 +9,7 @@ from ftw.trash.interfaces import ITrashed
 from ftw.trash.tests import duplicate_with_dexterity
 from ftw.trash.tests import FunctionalTestCase
 from Products.CMFCore.utils import getToolByName
+from zExceptions import Unauthorized
 
 
 @duplicate_with_dexterity
@@ -17,7 +18,7 @@ class TestDeletion(FunctionalTestCase):
     @browsing
     def test_deleted_content_is_marked_with_IRestorable(self, browser):
         catalog = getToolByName(self.layer['portal'], 'portal_catalog')
-        self.grant('Manager')
+        self.grant('Contributor')
 
         folder = create(Builder('folder').within(create(Builder('folder'))))
         subfolder = create(Builder('folder').within(folder))
@@ -43,7 +44,7 @@ class TestDeletion(FunctionalTestCase):
     @browsing
     def test_children_of_site_root_are_trashed_instead_of_deleted(self, browser):
         catalog = getToolByName(self.layer['portal'], 'portal_catalog')
-        self.grant('Manager')
+        self.grant('Contributor')
 
         folder = create(Builder('folder'))
         self.assertIn(folder.getId(), aq_parent(aq_inner(folder)).objectIds())
@@ -59,3 +60,35 @@ class TestDeletion(FunctionalTestCase):
         self.assertEqual(1, len(catalog.unrestrictedSearchResults()))
         self.assertTrue(IRestorable.providedBy(folder), 'Folder should provide IRestorable')
         self.assertTrue(ITrashed.providedBy(folder), 'Folder should provide ITrashed')
+
+    def test_manage_delObjects_requires_both_delete_permissions(self):
+        """collective.deletepermission adapts the behavior so that a user needs both,
+        "Delete objects" on the parent and "Delete portal content" on the child.
+
+        We dont want to change security and thus want the permissions to protect our
+        trashing.
+
+        This test must work accordingly to
+        ftw.trash.tests.test_installation.TestTrashNotInstalled.[test name]
+        """
+
+        self.grant('Manager')
+        parent = create(Builder('folder'))
+        parent.manage_permission('Delete objects', roles=['Contributor'], acquire=False)
+        child = create(Builder('folder').within(parent))
+        child.manage_permission('Delete portal content', roles=['Contributor'], acquire=False)
+        self.assertIn(child.getId(), parent.objectIds())
+        self.assertFalse(ITrashed.providedBy(parent))
+
+        with self.assertRaises(Unauthorized):
+            # Our test user with role Manager is not allowed to delete the child because
+            # we have limited the permissions to "Contributor".
+            parent.manage_delObjects([child.getId()])
+            self.assertIn(child.getId(), parent.objectIds())
+            self.assertFalse(ITrashed.providedBy(parent), 'Unauthorized user could trash content.')
+
+        user = create(Builder('user').with_roles('Contributor', on=parent))
+        with self.user(user):
+            parent.manage_delObjects([child.getId()])
+            self.assertIn(child.getId(), parent.objectIds())
+            self.assertTrue(ITrashed.providedBy(child), 'Authorized user couldnt trash content.')

@@ -1,6 +1,10 @@
+from AccessControl.SecurityManagement import getSecurityManager
+from AccessControl.SecurityManagement import setSecurityManager
+from contextlib import contextmanager
 from ftw.builder import builder_registry
 from ftw.trash.testing import TRASH_FUNCTIONAL
 from ftw.trash.tests.builders import DXFolderBuilder
+from plone.app.testing import login
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from unittest2 import TestCase
@@ -18,6 +22,18 @@ class FunctionalTestCase(TestCase):
     def grant(self, *roles):
         setRoles(self.portal, TEST_USER_ID, list(roles))
         transaction.commit()
+
+    @contextmanager
+    def user(self, username):
+        if hasattr(username, 'getUserName'):
+            username = username.getUserName()
+
+        sm = getSecurityManager()
+        login(self.layer['portal'], username)
+        try:
+            yield
+        finally:
+            setSecurityManager(sm)
 
 
 def duplicate_with_dexterity(klass):

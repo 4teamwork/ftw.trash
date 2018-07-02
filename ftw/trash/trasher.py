@@ -1,3 +1,6 @@
+from Acquisition import aq_inner
+from Acquisition import aq_parent
+from collective.deletepermission.del_object import protect_del_objects
 from ftw.trash.interfaces import IRestorable
 from ftw.trash.interfaces import ITrashed
 from functools import partial
@@ -12,6 +15,7 @@ class Trasher(object):
         self.context = context
 
     def trash(self):
+        protect_del_objects(aq_parent(aq_inner(self.context)), self.context.getId())
         alsoProvides(self.context, IRestorable)
         self._map_recursive(lambda obj: alsoProvides(obj, ITrashed), self.context)
 

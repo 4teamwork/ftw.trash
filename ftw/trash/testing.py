@@ -59,6 +59,7 @@ class TrashNotInstalledLayer(PloneSandboxLayer):
 
     def setUpPloneSite(self, portal):
         applyProfile(portal, 'ftw.trash.tests:dxtests')
+        applyProfile(portal, 'collective.deletepermission:default')
 
 
 TRASH_NOT_INSTALLED_FUNCTIONAL = FunctionalTesting(
