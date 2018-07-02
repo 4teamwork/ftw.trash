@@ -3,13 +3,15 @@ from Acquisition import aq_parent
 from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testbrowser import browsing
+from ftw.testbrowser.pages import plone
 from ftw.trash.interfaces import IRestorable
 from ftw.trash.interfaces import ITrashed
-from ftw.testbrowser.pages import plone
+from ftw.trash.tests import duplicate_with_dexterity
 from ftw.trash.tests import FunctionalTestCase
 from Products.CMFCore.utils import getToolByName
 
 
+@duplicate_with_dexterity
 class TestDeletion(FunctionalTestCase):
 
     @browsing

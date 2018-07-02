@@ -18,6 +18,7 @@ class TrashLayer(PloneSandboxLayer):
             '  <include package="z3c.autoinclude" file="meta.zcml" />'
             '  <includePlugins package="plone" />'
             '  <includePluginsOverrides package="plone" />'
+            '  <include package="ftw.trash.tests" />'
             '</configure>',
             context=configurationContext)
 
@@ -25,6 +26,7 @@ class TrashLayer(PloneSandboxLayer):
 
     def setUpPloneSite(self, portal):
         applyProfile(portal, 'ftw.trash:default')
+        applyProfile(portal, 'ftw.trash.tests:dxtests')
 
 
 TRASH_FIXTURE = TrashLayer()
@@ -49,10 +51,14 @@ class TrashNotInstalledLayer(PloneSandboxLayer):
             '  <include package="z3c.autoinclude" file="meta.zcml" />'
             '  <includePlugins package="plone" />'
             '  <includePluginsOverrides package="plone" />'
+            '  <include package="ftw.trash.tests" />'
             '</configure>',
             context=configurationContext)
 
         z2.installProduct(app, 'ftw.trash')
+
+    def setUpPloneSite(self, portal):
+        applyProfile(portal, 'ftw.trash.tests:dxtests')
 
 
 TRASH_NOT_INSTALLED_FUNCTIONAL = FunctionalTesting(

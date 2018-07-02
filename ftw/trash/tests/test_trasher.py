@@ -2,10 +2,12 @@ from ftw.builder import Builder
 from ftw.builder import create
 from ftw.trash.interfaces import IRestorable
 from ftw.trash.interfaces import ITrashed
+from ftw.trash.tests import duplicate_with_dexterity
 from ftw.trash.tests import FunctionalTestCase
 from ftw.trash.trasher import Trasher
 
 
+@duplicate_with_dexterity
 class TestTrasher(FunctionalTestCase):
 
     def test_marks_trashed_pageect_as_trashed_and_restorable(self):
