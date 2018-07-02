@@ -7,24 +7,44 @@
   <include package="collective.deletepermission" />
   <include package="collective.monkeypatcher" />
 
-  <configure zcml:condition="installed Products.Archetypes">
-    <monkey:patch
-        description="Patch AT manage_delObjects"
-        class="Products.Archetypes.BaseFolder.BaseFolderMixin"
-        original="manage_delObjects"
-        replacement="ftw.trash.patches.manage_delObjects"
-        preserveOriginal="true"
-        order="1100"
-        />
-  </configure>
-
+  <!-- DEXTERITY -->
   <configure zcml:condition="installed plone.app.dexterity">
+    <monkey:patch
+        description="Patch DX manage_trashObjects"
+        class="plone.dexterity.content.Container"
+        original="manage_trashObjects"
+        replacement="ftw.trash.patches.manage_trashObjects"
+        ignoreOriginal="true"
+        />
+
     <monkey:patch
         description="Patch DX manage_delObjects"
         class="plone.dexterity.content.Container"
         original="manage_delObjects"
         replacement="ftw.trash.patches.manage_delObjects"
         preserveOriginal="true"
+        preservedoc="true"
+        order="1100"
+        />
+  </configure>
+
+  <!-- ARCHETYPES -->
+  <configure zcml:condition="installed Products.Archetypes">
+    <monkey:patch
+        description="Patch AT manage_trashObjects"
+        class="Products.Archetypes.BaseFolder.BaseFolderMixin"
+        original="manage_trashObjects"
+        replacement="ftw.trash.patches.manage_trashObjects"
+        ignoreOriginal="true"
+        />
+
+    <monkey:patch
+        description="Patch AT manage_delObjects"
+        class="Products.Archetypes.BaseFolder.BaseFolderMixin"
+        original="manage_delObjects"
+        replacement="ftw.trash.patches.manage_delObjects"
+        preserveOriginal="true"
+        preservedoc="true"
         order="1100"
         />
   </configure>
