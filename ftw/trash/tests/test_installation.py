@@ -17,15 +17,16 @@ class TestDeletion(FunctionalTestCase):
         catalog = getToolByName(self.layer['portal'], 'portal_catalog')
         self.grant('Manager')
 
-        page = create(Builder('page').within(create(Builder('folder'))))
-        self.assertIn(page.getId(), aq_parent(aq_inner(page)).objectIds())
+        folder = create(Builder('folder').within(create(Builder('folder'))))
+        self.assertIn(folder.getId(), aq_parent(aq_inner(folder)).objectIds())
         self.assertEqual(2, len(catalog.unrestrictedSearchResults()))
 
-        browser.login().visit(page)
+        browser.login().visit(folder)
         browser.click_on('Delete')
-        self.assertEqual('Do you really want to delete this item?', plone.first_heading())
+        self.assertEquals('Do you really want to delete this folder and all its contents?',
+                          plone.first_heading())
         browser.click_on('Delete')
-        self.assertNotIn(page.getId(), aq_parent(aq_inner(page)).objectIds())
+        self.assertNotIn(folder.getId(), aq_parent(aq_inner(folder)).objectIds())
         self.assertEqual(1, len(catalog.unrestrictedSearchResults()))
 
     @browsing
@@ -33,13 +34,14 @@ class TestDeletion(FunctionalTestCase):
         catalog = getToolByName(self.layer['portal'], 'portal_catalog')
         self.grant('Manager')
 
-        page = create(Builder('page'))
-        self.assertIn(page.getId(), aq_parent(aq_inner(page)).objectIds())
+        folder = create(Builder('folder'))
+        self.assertIn(folder.getId(), aq_parent(aq_inner(folder)).objectIds())
         self.assertEqual(1, len(catalog.unrestrictedSearchResults()))
 
-        browser.login().visit(page)
+        browser.login().visit(folder)
         browser.click_on('Delete')
-        self.assertEqual('Do you really want to delete this item?', plone.first_heading())
+        self.assertEquals('Do you really want to delete this folder and all its contents?',
+                          plone.first_heading())
         browser.click_on('Delete')
-        self.assertNotIn(page.getId(), aq_parent(aq_inner(page)).objectIds())
+        self.assertNotIn(folder.getId(), aq_parent(aq_inner(folder)).objectIds())
         self.assertEqual(0, len(catalog.unrestrictedSearchResults()))

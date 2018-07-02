@@ -11,26 +11,26 @@ class TestTrasher(FunctionalTestCase):
     def test_marks_trashed_pageect_as_trashed_and_restorable(self):
         self.grant('Contributor')
 
-        page = create(Builder('page'))
-        self.assertFalse(ITrashed.providedBy(page))
-        self.assertFalse(IRestorable.providedBy(page))
+        folder = create(Builder('folder'))
+        self.assertFalse(ITrashed.providedBy(folder))
+        self.assertFalse(IRestorable.providedBy(folder))
 
-        Trasher(page).trash()
-        self.assertTrue(ITrashed.providedBy(page))
-        self.assertTrue(IRestorable.providedBy(page))
+        Trasher(folder).trash()
+        self.assertTrue(ITrashed.providedBy(folder))
+        self.assertTrue(IRestorable.providedBy(folder))
 
     def test_marks_children_of_trashed_folder_only_as_trashed(self):
         self.grant('Contributor')
 
         folder = create(Builder('folder'))
-        page = create(Builder('page').within(folder))
+        subfolder = create(Builder('folder').within(folder))
         self.assertFalse(ITrashed.providedBy(folder))
         self.assertFalse(IRestorable.providedBy(folder))
-        self.assertFalse(ITrashed.providedBy(page))
-        self.assertFalse(IRestorable.providedBy(page))
+        self.assertFalse(ITrashed.providedBy(subfolder))
+        self.assertFalse(IRestorable.providedBy(subfolder))
 
         Trasher(folder).trash()
         self.assertTrue(ITrashed.providedBy(folder))
         self.assertTrue(IRestorable.providedBy(folder))
-        self.assertTrue(ITrashed.providedBy(page))
-        self.assertFalse(IRestorable.providedBy(page))
+        self.assertTrue(ITrashed.providedBy(subfolder))
+        self.assertFalse(IRestorable.providedBy(subfolder))

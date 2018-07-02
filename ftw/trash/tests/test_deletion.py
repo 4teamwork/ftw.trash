@@ -18,7 +18,7 @@ class TestDeletion(FunctionalTestCase):
         self.grant('Manager')
 
         folder = create(Builder('folder').within(create(Builder('folder'))))
-        page = create(Builder('page').within(folder))
+        subfolder = create(Builder('folder').within(folder))
         self.assertIn(folder.getId(), aq_parent(aq_inner(folder)).objectIds())
         self.assertEqual(3, len(catalog.unrestrictedSearchResults()))
 
@@ -34,24 +34,26 @@ class TestDeletion(FunctionalTestCase):
         self.assertEqual(3, len(catalog.unrestrictedSearchResults()))
         self.assertTrue(IRestorable.providedBy(folder), 'Folder should provide IRestorable')
         self.assertTrue(ITrashed.providedBy(folder), 'Folder should provide ITrashed')
-        self.assertFalse(IRestorable.providedBy(page), 'Page should not provide IRestorable')
-        self.assertTrue(ITrashed.providedBy(page), 'Page should provide ITrashed')
+        self.assertFalse(IRestorable.providedBy(subfolder),
+                         'Subfolder should not provide IRestorable')
+        self.assertTrue(ITrashed.providedBy(subfolder), 'Subfolder should provide ITrashed')
 
     @browsing
     def test_children_of_site_root_are_trashed_instead_of_deleted(self, browser):
         catalog = getToolByName(self.layer['portal'], 'portal_catalog')
         self.grant('Manager')
 
-        page = create(Builder('page'))
-        self.assertIn(page.getId(), aq_parent(aq_inner(page)).objectIds())
+        folder = create(Builder('folder'))
+        self.assertIn(folder.getId(), aq_parent(aq_inner(folder)).objectIds())
         self.assertEqual(1, len(catalog.unrestrictedSearchResults()))
 
-        browser.login().visit(page)
+        browser.login().visit(folder)
         browser.click_on('Delete')
 
-        self.assertEquals('Do you really want to delete this item?', plone.first_heading())
+        self.assertEquals('Do you really want to delete this folder and all its contents?',
+                          plone.first_heading())
         browser.click_on('Delete')
-        self.assertIn(page.getId(), aq_parent(aq_inner(page)).objectIds())
+        self.assertIn(folder.getId(), aq_parent(aq_inner(folder)).objectIds())
         self.assertEqual(1, len(catalog.unrestrictedSearchResults()))
-        self.assertTrue(IRestorable.providedBy(page), 'Page should provide IRestorable')
-        self.assertTrue(ITrashed.providedBy(page), 'Page should provide ITrashed')
+        self.assertTrue(IRestorable.providedBy(folder), 'Folder should provide IRestorable')
+        self.assertTrue(ITrashed.providedBy(folder), 'Folder should provide ITrashed')
