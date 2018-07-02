@@ -18,7 +18,7 @@ extras_require = {
 setup(
     name='ftw.trash',
     version=version,
-    description='ftw.trash',
+    description='A Plone addon introducing a trash with restore functionality.',
     long_description=open('README.rst').read(),
 
     # Get more strings from
