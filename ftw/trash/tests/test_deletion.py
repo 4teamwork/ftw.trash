@@ -36,3 +36,22 @@ class TestDeletion(FunctionalTestCase):
         self.assertTrue(ITrashed.providedBy(folder), 'Folder should provide ITrashed')
         self.assertFalse(IRestorable.providedBy(page), 'Page should not provide IRestorable')
         self.assertTrue(ITrashed.providedBy(page), 'Page should provide ITrashed')
+
+    @browsing
+    def test_children_of_site_root_are_trashed_instead_of_deleted(self, browser):
+        catalog = getToolByName(self.layer['portal'], 'portal_catalog')
+        self.grant('Manager')
+
+        page = create(Builder('page'))
+        self.assertIn(page.getId(), aq_parent(aq_inner(page)).objectIds())
+        self.assertEqual(1, len(catalog.unrestrictedSearchResults()))
+
+        browser.login().visit(page)
+        browser.click_on('Delete')
+
+        self.assertEquals('Do you really want to delete this item?', plone.first_heading())
+        browser.click_on('Delete')
+        self.assertIn(page.getId(), aq_parent(aq_inner(page)).objectIds())
+        self.assertEqual(1, len(catalog.unrestrictedSearchResults()))
+        self.assertTrue(IRestorable.providedBy(page), 'Page should provide IRestorable')
+        self.assertTrue(ITrashed.providedBy(page), 'Page should provide ITrashed')

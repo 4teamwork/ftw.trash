@@ -7,6 +7,25 @@
   <include package="collective.deletepermission" />
   <include package="collective.monkeypatcher" />
 
+  <!-- PLONE SITE ROOT -->
+  <monkey:patch
+      description="Patch site root manage_trashObjects"
+      class="Products.CMFPlone.Portal.PloneSite"
+      original="manage_trashObjects"
+      replacement="ftw.trash.patches.manage_trashObjects"
+      ignoreOriginal="true"
+      />
+
+  <monkey:patch
+      description="Patch site root manage_delObjects"
+      class="Products.CMFPlone.Portal.PloneSite"
+      original="manage_delObjects"
+      replacement="ftw.trash.patches.manage_delObjects"
+      preserveOriginal="true"
+      preservedoc="true"
+      order="1100"
+      />
+
   <!-- DEXTERITY -->
   <configure zcml:condition="installed plone.app.dexterity">
     <monkey:patch
