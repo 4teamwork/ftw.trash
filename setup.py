@@ -45,6 +45,7 @@ setup(
 
     install_requires=[
         'Plone',
+        'collective.deletepermission',
         'setuptools',
         'ftw.upgrade',
     ],

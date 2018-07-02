@@ -1,11 +1,18 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
-    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
     xmlns:five="http://namespaces.zope.org/five"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    xmlns:monkey="http://namespaces.plone.org/monkey"
     xmlns:upgrade-step="http://namespaces.zope.org/ftw.upgrade"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="ftw.trash">
 
+  <include package="Products.CMFCore" file="meta.zcml" />
+  <include package="ftw.upgrade" file="meta.zcml" />
+
   <five:registerPackage package="." initialize=".initialize" />
+
+  <include file="patches.zcml" />
 
   <genericsetup:registerProfile
       name="default"
@@ -22,7 +29,6 @@
       for="Products.CMFPlone.interfaces.IMigratingPloneSiteRoot"
       />
 
-  <include package="ftw.upgrade" file="meta.zcml" />
   <upgrade-step:directory
       profile="ftw.trash:default"
       directory="upgrades"

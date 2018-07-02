@@ -17,6 +17,7 @@ Installation and usage
           ftw.trash
 
 - Install the ``ftw.trash`` addon in Plone (Addons control panel or portal_setup or quickinstaller).
+- Be aware that ``ftw.trash`` requires and installs ``collective.deletepermission``.
 
 
 Internals
