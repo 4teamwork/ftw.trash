@@ -7,6 +7,7 @@ from ftw.trash.tests.builders import DXFolderBuilder
 from plone.app.testing import login
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
+from Products.CMFCore.utils import getToolByName
 from unittest2 import TestCase
 import sys
 import transaction
@@ -34,6 +35,20 @@ class FunctionalTestCase(TestCase):
             yield
         finally:
             setSecurityManager(sm)
+
+    def get_catalog_indexdata(self, obj):
+        """Return the catalog index data for an object as dict.
+        """
+        catalog = getToolByName(self.portal, 'portal_catalog')
+        rid = catalog.getrid('/'.join(obj.getPhysicalPath()))
+        return catalog.getIndexDataForRID(rid)
+
+    def get_catalog_metadata(self, obj):
+        """Return the catalog metadata for an object as dict.
+        """
+        catalog = getToolByName(self.portal, 'portal_catalog')
+        rid = catalog.getrid('/'.join(obj.getPhysicalPath()))
+        return catalog.getMetadataForRID(rid)
 
 
 def duplicate_with_dexterity(klass):

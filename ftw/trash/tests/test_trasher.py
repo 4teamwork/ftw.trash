@@ -36,3 +36,28 @@ class TestTrasher(FunctionalTestCase):
         self.assertTrue(IRestorable.providedBy(folder))
         self.assertTrue(ITrashed.providedBy(subfolder))
         self.assertFalse(IRestorable.providedBy(subfolder))
+
+    def test_catalog_is_updated_when_trashing_content(self):
+        self.grant('Contributor')
+
+        folder = create(Builder('folder'))
+        subfolder = create(Builder('folder').within(folder))
+
+        self.assertNotIn(ITrashed.__identifier__,
+                         self.get_catalog_indexdata(folder).get('object_provides'))
+        self.assertNotIn(IRestorable.__identifier__,
+                         self.get_catalog_indexdata(folder).get('object_provides'))
+        self.assertNotIn(ITrashed.__identifier__,
+                         self.get_catalog_indexdata(subfolder).get('object_provides'))
+        self.assertNotIn(IRestorable.__identifier__,
+                         self.get_catalog_indexdata(subfolder).get('object_provides'))
+
+        Trasher(folder).trash()
+        self.assertIn(ITrashed.__identifier__,
+                      self.get_catalog_indexdata(folder).get('object_provides'))
+        self.assertIn(IRestorable.__identifier__,
+                      self.get_catalog_indexdata(folder).get('object_provides'))
+        self.assertIn(ITrashed.__identifier__,
+                      self.get_catalog_indexdata(subfolder).get('object_provides'))
+        self.assertNotIn(IRestorable.__identifier__,
+                         self.get_catalog_indexdata(subfolder).get('object_provides'))
