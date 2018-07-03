@@ -1,0 +1,42 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    xmlns:profilehook="http://namespaces.zope.org/profilehook"
+    xmlns:upgrade-step="http://namespaces.zope.org/ftw.upgrade"
+    i18n_domain="ftw.trash">
+
+  <include package="Products.CMFCore" file="meta.zcml" />
+  <include package="ftw.profilehook" />
+  <include package="ftw.upgrade" file="meta.zcml" />
+
+  <genericsetup:registerProfile
+      name="default"
+      title="ftw.trash default"
+      directory="profiles/default"
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
+
+  <profilehook:hook
+      profile="ftw.trash:default"
+      handler=".hooks.installed"
+      />
+
+  <upgrade-step:directory
+      profile="ftw.trash:default"
+      directory="upgrades"
+      />
+
+  <genericsetup:registerProfile
+      name="uninstall"
+      title="ftw.trash : uninstall"
+      directory="profiles/uninstall"
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      for="Products.CMFPlone.interfaces.IMigratingPloneSiteRoot"
+      />
+
+  <profilehook:hook
+      profile="ftw.trash:uninstall"
+      handler=".hooks.uninstalled"
+      />
+
+</configure>

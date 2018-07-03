@@ -68,4 +68,25 @@
         />
   </configure>
 
+  <!-- CATALOG -->
+  <monkey:patch
+      description="Patch catalog.searchResults"
+      class="Products.CMFPlone.CatalogTool.CatalogTool"
+      original="searchResults"
+      replacement="ftw.trash.patches.searchResults"
+      preserveOriginal="true"
+      preservedoc="true"
+      order="1100"
+      />
+
+  <monkey:patch
+      description="Patch catalog.__call__"
+      class="Products.CMFPlone.CatalogTool.CatalogTool"
+      original="__call__"
+      replacement="ftw.trash.patches.searchResults"
+      preserveOriginal="true"
+      preservedoc="true"
+      order="1100"
+      />
+
 </configure>

@@ -19,6 +19,23 @@ Installation and usage
 - Install the ``ftw.trash`` addon in Plone (Addons control panel or portal_setup or quickinstaller).
 - Be aware that ``ftw.trash`` requires and installs ``collective.deletepermission``.
 
+Querying
+~~~~~~~~
+
+The catalog is patched, so that it includes the default query ``{'trashed': False}``.
+This makes sure that we only work with not trashed objects by default.
+
+If you want to access trashed objects, you can simply use the query keyword ``trashed``
+with one of these values:
+
+- ``False``: only return objects which are not trashed.
+- ``True``: only return objects which are trashed.
+- ``None``: do not apply "trashed" filter, return trashed and not trashed objects.
+
+These filters only apply when ``portal_catalog.searchResults`` is used.
+When using ``portal_catalog.unrestrictedSearchResults`` the behavior is different,
+especially for ``trashed=None``, since this method is not patched.
+
 
 Internals
 ---------
@@ -28,7 +45,7 @@ Internals
 - Only the root node of the deleted structure can be restored and thus provides ``IRestorable``.
   Restoring children without their deleted parents cannot work since the parent is missing.
 - Trashed content is not moved.
-
+- The catalog's ``searchResults`` method is patched so that it filters trashed objects by default.
 
 Development
 -----------

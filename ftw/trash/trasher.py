@@ -22,5 +22,6 @@ class Trasher(object):
     def _trash_recursive(self, obj):
         protect_del_objects(aq_parent(aq_inner(obj)), obj.getId())
         alsoProvides(obj, ITrashed)
-        self.catalog.reindexObject(obj, idxs=['object_provides'], update_metadata=0)
+        self.catalog.reindexObject(obj, update_metadata=0,
+                                   idxs=['object_provides', 'trashed'])
         map(self._trash_recursive, obj.objectValues())

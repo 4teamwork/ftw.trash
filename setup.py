@@ -47,6 +47,7 @@ setup(
         'Plone',
         'collective.deletepermission',
         'setuptools',
+        'ftw.profilehook',
         'ftw.upgrade',
     ],
 
