@@ -12,7 +12,7 @@ import transaction
 class TestTraversing(FunctionalTestCase):
 
     @browsing
-    def test_browsing_trashed_content_is_forbidden(self, browser):
+    def test_browsing_trashed_content_raises_404(self, browser):
         self.grant('Contributor')
 
         parent = create(Builder('folder'))
@@ -31,10 +31,10 @@ class TestTraversing(FunctionalTestCase):
 
         browser.open(parent)
 
-        with browser.expect_unauthorized():
+        with browser.expect_http_error(404):
             browser.open(folder)
 
-        with browser.expect_unauthorized():
+        with browser.expect_http_error(404):
             browser.open(subfolder)
 
     @browsing

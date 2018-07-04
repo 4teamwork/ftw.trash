@@ -3,7 +3,7 @@ from ftw.trash import _
 from ftw.trash.interfaces import ITrashed
 from Products.CMFPlone.utils import safe_unicode
 from Products.statusmessages.interfaces import IStatusMessage
-from zExceptions import Unauthorized
+from zExceptions import NotFound
 
 
 def prevent_accessing_trashed_content_after_traversal(event):
@@ -19,4 +19,4 @@ def prevent_accessing_trashed_content_after_traversal(event):
             type='warning')
         return
 
-    raise Unauthorized()
+    raise NotFound()
