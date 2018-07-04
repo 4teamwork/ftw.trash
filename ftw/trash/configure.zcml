@@ -10,4 +10,9 @@
 
   <adapter name="trashed" factory=".indexers.trashed_indexer" />
 
+  <subscriber
+      for="ZPublisher.interfaces.IPubAfterTraversal"
+      handler=".subscribers.prevent_accessing_trashed_content_after_traversal"
+      />
+
 </configure>

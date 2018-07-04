@@ -46,6 +46,8 @@ Internals
   Restoring children without their deleted parents cannot work since the parent is missing.
 - Trashed content is not moved.
 - The catalog's ``searchResults`` method is patched so that it filters trashed objects by default.
+- Trashed content is prevented from beeing published / accessible through the browser unless
+  the user has the ``Manager`` role.
 
 Development
 -----------
