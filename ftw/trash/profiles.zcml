@@ -11,7 +11,7 @@
 
   <genericsetup:registerProfile
       name="default"
-      title="ftw.trash default"
+      title="ftw.trash"
       directory="profiles/default"
       provides="Products.GenericSetup.interfaces.EXTENSION"
       />
@@ -28,7 +28,7 @@
 
   <genericsetup:registerProfile
       name="uninstall"
-      title="ftw.trash : uninstall"
+      title="ftw.trash: uninstall"
       directory="profiles/uninstall"
       provides="Products.GenericSetup.interfaces.EXTENSION"
       for="Products.CMFPlone.interfaces.IMigratingPloneSiteRoot"
