@@ -1,5 +1,7 @@
+from datetime import datetime
 from ftw.builder import Builder
 from ftw.builder import create
+from ftw.testing import freeze
 from ftw.trash.exceptions import NotRestorable
 from ftw.trash.interfaces import IRestorable
 from ftw.trash.interfaces import ITrashed
@@ -244,3 +246,29 @@ class TestTrasher(FunctionalTestCase):
         Trasher(folder).trash()
         self.assertTrue(Trasher(folder).is_restorable())
         self.assertFalse(Trasher(subfolder).is_restorable())
+
+    def test_trashing_and_restoring_updates_modified_date(self):
+        self.grant('Site Administrator')
+
+        created = datetime(2011, 1, 1, 1, 1, 1)
+        trashed = datetime(2022, 2, 2, 2, 2, 2)
+        restored = datetime(2033, 3, 3, 3, 3, 3)
+
+        with freeze(created):
+            folder = create(Builder('folder'))
+            subfolder = create(Builder('folder').within(folder))
+
+        self.assert_modified_date(created, folder)
+        self.assert_modified_date(created, subfolder)
+
+        with freeze(trashed):
+            Trasher(folder).trash()
+
+        self.assert_modified_date(trashed, folder)
+        self.assert_modified_date(trashed, subfolder)
+
+        with freeze(restored):
+            Trasher(folder).restore()
+
+        self.assert_modified_date(restored, folder)
+        self.assert_modified_date(restored, subfolder)

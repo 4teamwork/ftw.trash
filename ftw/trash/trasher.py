@@ -5,7 +5,6 @@ from collective.deletepermission.del_object import protect_del_objects
 from ftw.trash.exceptions import NotRestorable
 from ftw.trash.interfaces import IRestorable
 from ftw.trash.interfaces import ITrashed
-from Products.CMFCore.utils import getToolByName
 from zExceptions import Unauthorized
 from zope.interface import alsoProvides
 from zope.interface import noLongerProvides
@@ -17,7 +16,6 @@ class Trasher(object):
 
     def __init__(self, context):
         self.context = context
-        self.catalog = getToolByName(self.context, 'portal_catalog')
 
     def trash(self):
         self._trash_recursive(self.context, is_root=True)
@@ -47,11 +45,13 @@ class Trasher(object):
         else:
             noLongerProvides(obj, IRestorable)
 
-        self.catalog.reindexObject(obj, update_metadata=0, idxs=['object_provides', 'trashed'])
+        obj.setModificationDate()
+        obj.reindexObject(idxs=['object_provides', 'trashed', 'modified'])
         map(self._trash_recursive, obj.objectValues())
 
     def _restore_recursive(self, obj):
         noLongerProvides(obj, ITrashed)
         noLongerProvides(obj, IRestorable)
-        self.catalog.reindexObject(obj, update_metadata=0, idxs=['object_provides', 'trashed'])
+        obj.setModificationDate()
+        obj.reindexObject(idxs=['object_provides', 'trashed', 'modified'])
         map(self._restore_recursive, obj.objectValues())

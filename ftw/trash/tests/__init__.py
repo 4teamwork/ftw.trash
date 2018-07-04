@@ -1,6 +1,7 @@
 from AccessControl.SecurityManagement import getSecurityManager
 from AccessControl.SecurityManagement import setSecurityManager
 from contextlib import contextmanager
+from DateTime import DateTime
 from ftw.builder import builder_registry
 from ftw.trash.testing import TRASH_FUNCTIONAL
 from ftw.trash.tests.builders import DXFolderBuilder
@@ -50,6 +51,23 @@ class FunctionalTestCase(TestCase):
         rid = catalog.getrid('/'.join(obj.getPhysicalPath()))
         return catalog.getMetadataForRID(rid)
 
+    def assert_modified_date(self, expected, obj):
+        expected = DateTime(expected)
+        self.assertEqual(expected, obj.modified(), '{!r}.modified() is wrong'.format(obj))
+        self.assertEqual(expected, self.get_catalog_metadata(obj)['modified'],
+                         '{!r}\'s "modified" metadata is wrong'.format(obj))
+
+        catalog = getToolByName(self.portal, 'portal_catalog')
+        modified_index = catalog._catalog.indexes.get('modified')
+
+        self.assertEqual(
+            modified_index._convert(expected), self.get_catalog_indexdata(obj)['modified'],
+            '{!r}\'s "modified" index data is wrong'.format(obj))
+
+    @property
+    def is_dexterity(self):
+        return False
+
 
 def duplicate_with_dexterity(klass):
     """Decorator for duplicating a test suite to be ran against dexterity contents.
@@ -75,6 +93,10 @@ def duplicate_with_dexterity(klass):
             super(DexterityTestSuite, self).tearDown()
             self._builder_isolation.__exit__(None, None, None)
             del self._builder_isolation
+
+        @property
+        def is_dexterity(self):
+            return True
 
     DexterityTestSuite.__name__ = klass.__name__ + 'Dexterity'
     DexterityTestSuite.__module__ = klass.__module__
