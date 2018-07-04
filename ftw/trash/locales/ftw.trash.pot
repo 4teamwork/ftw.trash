@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-07-04 08:41+0000\n"
+"POT-Creation-Date: 2018-07-04 18:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13,6 +13,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "Preferred-Encodings: utf-8 latin1\n"
+
+#: ./ftw/trash/profiles/default/actions.xml
+msgid "Trash"
+msgstr ""
 
 #: ./ftw/trash/profiles.zcml:17
 msgid "ftw.trash"
@@ -25,5 +29,25 @@ msgstr ""
 #. Default: "The content \"${title}\" is trashed."
 #: ./ftw/trash/subscribers.py:16
 msgid "statusmessage_content_trashed"
+msgstr ""
+
+#. Default: "Last modified"
+#: ./ftw/trash/browser/templates/trash.pt:17
+msgid "trashview_last_modified"
+msgstr ""
+
+#. Default: "Location"
+#: ./ftw/trash/browser/templates/trash.pt:20
+msgid "trashview_location"
+msgstr ""
+
+#. Default: "Title"
+#: ./ftw/trash/browser/templates/trash.pt:19
+msgid "trashview_title"
+msgstr ""
+
+#. Default: "Type"
+#: ./ftw/trash/browser/templates/trash.pt:18
+msgid "trashview_type"
 msgstr ""
 

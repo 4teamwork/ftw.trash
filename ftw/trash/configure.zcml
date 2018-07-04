@@ -6,10 +6,11 @@
 
   <five:registerPackage package="." initialize=".initialize" />
 
+  <include file="lawgiver.zcml" zcml:condition="installed ftw.lawgiver" />
   <include file="patches.zcml" />
   <include file="permissions.zcml" />
   <include file="profiles.zcml" />
-  <include file="lawgiver.zcml" zcml:condition="installed ftw.lawgiver" />
+  <include package=".browser" />
 
   <adapter name="trashed" factory=".indexers.trashed_indexer" />
 

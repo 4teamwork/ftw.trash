@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-07-04 08:41+0000\n"
-"PO-Revision-Date: 2018-07-04 10:41+0200\n"
+"POT-Creation-Date: 2018-07-04 18:05+0000\n"
+"PO-Revision-Date: 2018-07-04 20:05+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -10,6 +10,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "Preferred-Encodings: utf-8 latin1\n"
+
+#: ./ftw/trash/profiles/default/actions.xml
+msgid "Trash"
+msgstr "Papierkorb"
 
 #: ./ftw/trash/profiles.zcml:17
 msgid "ftw.trash"
@@ -24,3 +28,22 @@ msgstr "ftw.trash: deinstallieren"
 msgid "statusmessage_content_trashed"
 msgstr "Der Inhalt \"${title}\" ist im Papierkorb."
 
+#. Default: "Last modified"
+#: ./ftw/trash/browser/templates/trash.pt:17
+msgid "trashview_last_modified"
+msgstr "Zuletzt verändert"
+
+#. Default: "Location"
+#: ./ftw/trash/browser/templates/trash.pt:20
+msgid "trashview_location"
+msgstr "Ort"
+
+#. Default: "Title"
+#: ./ftw/trash/browser/templates/trash.pt:19
+msgid "trashview_title"
+msgstr "Titel"
+
+#. Default: "Type"
+#: ./ftw/trash/browser/templates/trash.pt:18
+msgid "trashview_type"
+msgstr "Type"
