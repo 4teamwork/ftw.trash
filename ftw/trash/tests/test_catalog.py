@@ -29,6 +29,19 @@ class TestCatalog(FunctionalTestCase):
         self.assert_catalog_result({'Bar'}, query={'trashed': True})
         self.assert_catalog_result({'Foo'}, query={'trashed': False})
 
+    def test_unrestrictedSearchResults_returns_all_items_by_default(self):
+        """unrestrictedSearchResults must return all items by default, no matter whether
+        they're trashed or not, because ftw.upgrade uses unrestrictedSearchResults
+        and we want to make sure that all objects are migrated.
+        """
+        self.grant('Contributor')
+
+        create(Builder('folder').titled(u'Foo'))
+        Trasher(create(Builder('folder').titled(u'Bar'))).trash()
+        catalog = getToolByName(self.portal, 'portal_catalog')
+        self.assertItemsEqual(('Foo', 'Bar'),
+                              [brain.Title for brain in catalog.unrestrictedSearchResults()])
+
     def assert_catalog_result(self, expected_titles, query={}):
         catalog = getToolByName(self.portal, 'portal_catalog')
         got_titles1 = [brain.Title for brain in catalog.searchResults(**query)]
