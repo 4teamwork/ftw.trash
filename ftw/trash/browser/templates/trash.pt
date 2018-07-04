@@ -18,6 +18,7 @@
             <th i18n:translate="trashview_type">Type</th>
             <th i18n:translate="trashview_title">Title</th>
             <th i18n:translate="trashview_location">Location</th>
+            <th></th>
           </tr>
         </thead>
 
@@ -28,6 +29,13 @@
             <td tal:content="item/type" i18n:translate="" i18n:domain="plone" />
             <td tal:content="item/title" />
             <td tal:content="item/location" />
+            <td>
+              <form method="POST" tal:attributes="action string:${request/URL}/restore">
+                <span tal:replace="structure context/@@authenticator/authenticator"/>
+                <input type="hidden" name="uuid" tal:attributes="value item/uuid" />
+                <input type="submit" value="Restore" i18n:attributes="value" />
+              </form>
+            </td>
           </tr>
 
         </tbody>

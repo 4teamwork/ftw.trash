@@ -3,7 +3,9 @@ from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import plone
+from ftw.testbrowser.pages import statusmessages
 from ftw.testing import freeze
+from ftw.trash.interfaces import ITrashed
 from ftw.trash.tests import duplicate_with_dexterity
 from ftw.trash.tests import FunctionalTestCase
 from ftw.trash.trasher import Trasher
@@ -51,14 +53,45 @@ class TestTrashView(FunctionalTestCase):
         browser.login().open().click_on('Trash')
         self.assertEquals('trash', plone.view())
 
-        if self.is_dexterity:
-            type_label = 'dxfolder'
-        else:
-            type_label = 'Folder'
-
         self.assertEquals(
             [{'Last modified': 'Dec 15, 2016 05:09 PM',
-              'Type': type_label,
+              'Type': self.type_label,
               'Title': 'Delete that',
-              'Location': 'parent'}],
+              'Location': 'parent',
+              '': ''}],
             browser.css('.trash-table').first.dicts())
+
+    @browsing
+    def test_restore_trashed_content(self, browser):
+        self.grant('Site Administrator')
+
+        folder = create(Builder('folder').titled(u'My Folder'))
+        with freeze(datetime(2011, 1, 1)):
+            Trasher(folder).trash()
+
+        self.assertTrue(ITrashed.providedBy(folder))
+
+        transaction.commit()
+        browser.login().open().click_on('Trash')
+
+        self.assertEquals(
+            [{'Last modified': 'Jan 01, 2011 12:00 AM',
+              'Type': self.type_label,
+              'Title': 'My Folder',
+              'Location': '.',
+              '': ''}],
+            browser.css('.trash-table').first.dicts())
+
+        browser.css('.trash-table').find('Restore').first.click()
+        statusmessages.assert_message('The content "My Folder" has been restored.')
+        self.assertEqual(folder.absolute_url(), browser.url)
+
+        transaction.begin()
+        self.assertFalse(ITrashed.providedBy(folder))
+
+    @property
+    def type_label(self):
+        if self.is_dexterity:
+            return 'dxfolder'
+        else:
+            return 'Folder'

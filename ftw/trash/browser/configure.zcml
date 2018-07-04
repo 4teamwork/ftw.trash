@@ -8,7 +8,7 @@
       for="plone.app.layout.navigation.interfaces.INavigationRoot"
       class=".trash.TrashView"
       permission="ftw.trash.RestoreTrashedContent"
-      template="templates/trash.pt"
+      allowed_attributes="restore"
       />
 
 </configure>

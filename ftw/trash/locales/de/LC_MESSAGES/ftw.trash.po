@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-07-04 18:05+0000\n"
+"POT-Creation-Date: 2018-07-04 18:37+0000\n"
 "PO-Revision-Date: 2018-07-04 20:05+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -10,6 +10,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "Preferred-Encodings: utf-8 latin1\n"
+
+#: ./ftw/trash/browser/templates/trash.pt:36
+msgid "Restore"
+msgstr "Wiederherstellen"
 
 #: ./ftw/trash/profiles/default/actions.xml
 msgid "Trash"
@@ -22,6 +26,11 @@ msgstr "ftw.trash"
 #: ./ftw/trash/profiles.zcml:35
 msgid "ftw.trash: uninstall"
 msgstr "ftw.trash: deinstallieren"
+
+#. Default: "The content \"${title}\" has been restored."
+#: ./ftw/trash/browser/trash.py:42
+msgid "statusmessage_content_restored"
+msgstr "Der Inhalt \"${title}\" wurde wieder hergestellt."
 
 #. Default: "The content \"${title}\" is trashed."
 #: ./ftw/trash/subscribers.py:16
