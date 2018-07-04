@@ -1,0 +1,10 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:lawgiver="http://namespaces.zope.org/lawgiver"
+    i18n_domain="ftw.trash">
+
+  <include package="ftw.lawgiver" file="lawgiver.zcml" />
+
+  <lawgiver:ignore permissions="Restore trashed content" />
+
+</configure>

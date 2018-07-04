@@ -1,12 +1,15 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:five="http://namespaces.zope.org/five"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="ftw.trash">
 
   <five:registerPackage package="." initialize=".initialize" />
 
   <include file="patches.zcml" />
+  <include file="permissions.zcml" />
   <include file="profiles.zcml" />
+  <include file="lawgiver.zcml" zcml:condition="installed ftw.lawgiver" />
 
   <adapter name="trashed" factory=".indexers.trashed_indexer" />
 

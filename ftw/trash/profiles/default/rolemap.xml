@@ -1,0 +1,10 @@
+<rolemap>
+  <permissions>
+
+    <permission name="Restore trashed content" acquire="True">
+      <role name="Manager" />
+      <role name="Site Administrator" />
+    </permission>
+
+  </permissions>
+</rolemap>

@@ -1,0 +1,8 @@
+<configure xmlns="http://namespaces.zope.org/zope"
+           i18n_domain="ftw.trash">
+
+  <permission
+      id="ftw.trash.RestoreTrashedContent"
+      title="Restore trashed content" />
+
+</configure>

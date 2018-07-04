@@ -48,6 +48,8 @@ Internals
 - The catalog's ``searchResults`` method is patched so that it filters trashed objects by default.
 - Trashed content is prevented from beeing published / accessible through the browser unless
   the user has the ``Manager`` role.
+- For restoring content, the permission ``Restore trashed content`` is required, which is
+  granted by default to the roles ``Manager`` and ``Site Administrator``.
 
 Development
 -----------
