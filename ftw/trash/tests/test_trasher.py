@@ -70,6 +70,27 @@ class TestTrasher(FunctionalTestCase):
         self.assertNotIn(IRestorable.__identifier__,
                          self.get_catalog_indexdata(subfolder).get('object_provides'))
 
+    def test_IRestorable_is_removed_when_parent_is_also_trashed(self):
+        """Given B is a child of A.
+        When B is trashed, it is IRestorable.
+        But when we also trash A, be should no longer be IRestorable, since its parent
+        is trashed too.
+        """
+        self.grant('Contributor')
+
+        folder = create(Builder('folder'))
+        subfolder = create(Builder('folder').within(folder))
+        self.assertFalse(IRestorable.providedBy(folder))
+        self.assertFalse(IRestorable.providedBy(subfolder))
+
+        Trasher(subfolder).trash()
+        self.assertFalse(IRestorable.providedBy(folder))
+        self.assertTrue(IRestorable.providedBy(subfolder))
+
+        Trasher(folder).trash()
+        self.assertTrue(IRestorable.providedBy(folder))
+        self.assertFalse(IRestorable.providedBy(subfolder))
+
     def test_restorable_content_can_be_restored(self):
         self.grant('Site Administrator')
 
@@ -169,6 +190,17 @@ class TestTrasher(FunctionalTestCase):
         with self.assertRaises(NotRestorable):
             Trasher(subfolder).restore()
 
+    def test_cannot_restore_content_when_parent_was_trashed_earlier(self):
+        self.grant('Site Administrator')
+
+        folder = create(Builder('folder'))
+        subfolder = create(Builder('folder').within(folder))
+        Trasher(subfolder).trash()
+        Trasher(folder).trash()
+
+        with self.assertRaises(NotRestorable):
+            Trasher(subfolder).restore()
+
     def test_restore_requires_permission(self):
         self.grant('Contributor')
 
@@ -187,3 +219,28 @@ class TestTrasher(FunctionalTestCase):
         parent.manage_permission('Restore trashed content', roles=['Contributor'], acquire=False)
         Trasher(folder).restore()
         self.assertFalse(ITrashed.providedBy(folder))
+
+    def test_is_restorable_when_trashed(self):
+        self.grant('Site Administrator')
+
+        folder = create(Builder('folder'))
+        self.assertFalse(Trasher(folder).is_restorable())
+
+        Trasher(folder).trash()
+        self.assertTrue(Trasher(folder).is_restorable())
+
+    def test_not_restorable_when_parent_is_trashed_too(self):
+        self.grant('Site Administrator')
+
+        folder = create(Builder('folder'))
+        subfolder = create(Builder('folder').within(folder))
+        self.assertFalse(Trasher(folder).is_restorable())
+        self.assertFalse(Trasher(subfolder).is_restorable())
+
+        Trasher(subfolder).trash()
+        self.assertFalse(Trasher(folder).is_restorable())
+        self.assertTrue(Trasher(subfolder).is_restorable())
+
+        Trasher(folder).trash()
+        self.assertTrue(Trasher(folder).is_restorable())
+        self.assertFalse(Trasher(subfolder).is_restorable())

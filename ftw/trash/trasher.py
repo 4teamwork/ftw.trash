@@ -20,28 +20,38 @@ class Trasher(object):
         self.catalog = getToolByName(self.context, 'portal_catalog')
 
     def trash(self):
-        alsoProvides(self.context, IRestorable)
-        self._trash_recursive(self.context)
+        self._trash_recursive(self.context, is_root=True)
+
+    def is_restorable(self):
+        parent = aq_parent(aq_inner(self.context))
+        if ITrashed.providedBy(parent):
+            # Cannot restore an object when the parent is still trashed.
+            return False
+
+        return ITrashed.providedBy(self.context)
 
     def restore(self):
-        if not IRestorable.providedBy(self.context):
+        if not self.is_restorable():
             raise NotRestorable()
 
         if not getSecurityManager().checkPermission('Restore trashed content', self.context):
             raise Unauthorized()
 
-        noLongerProvides(self.context, IRestorable)
         self._restore_recursive(self.context)
 
-    def _trash_recursive(self, obj):
+    def _trash_recursive(self, obj, is_root=False):
         protect_del_objects(aq_parent(aq_inner(obj)), obj.getId())
         alsoProvides(obj, ITrashed)
-        self.catalog.reindexObject(obj, update_metadata=0,
-                                   idxs=['object_provides', 'trashed'])
+        if is_root:
+            alsoProvides(obj, IRestorable)
+        else:
+            noLongerProvides(obj, IRestorable)
+
+        self.catalog.reindexObject(obj, update_metadata=0, idxs=['object_provides', 'trashed'])
         map(self._trash_recursive, obj.objectValues())
 
     def _restore_recursive(self, obj):
         noLongerProvides(obj, ITrashed)
-        self.catalog.reindexObject(obj, update_metadata=0,
-                                   idxs=['object_provides', 'trashed'])
+        noLongerProvides(obj, IRestorable)
+        self.catalog.reindexObject(obj, update_metadata=0, idxs=['object_provides', 'trashed'])
         map(self._restore_recursive, obj.objectValues())
