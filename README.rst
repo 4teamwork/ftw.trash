@@ -36,6 +36,26 @@ These filters only apply when ``portal_catalog.searchResults`` is used.
 When using ``portal_catalog.unrestrictedSearchResults`` the behavior is different,
 especially for ``trashed=None``, since this method is not patched.
 
+Manipulate condition for restoring
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+By default, restoring a page can be compared to adding a new page to its container.
+Therefore we require the ``Add portal content`` permission on the parent.
+This may depend on the application and the content type though: there are content types
+which can be seen as part of the content of their parents, in which case we'd like to
+require the ``Modify portal content`` permission for restoring instead.
+Therefore this behavior can be manipulated by simply registering an adapter for the restored
+content for which we want to change the behavior.
+
+Example:
+
+.. code::python
+
+  @implementer(IIsRestoreAllowedAdapter)
+  @adapter(IMyType, IMyBrowserLayer)
+  def is_restore_allowed_for_my_type(context, request):
+      parent = aq_parent(aq_inner(context))
+      return getSecurityManager().checkPermission('Modify portal content', parent)
 
 Internals
 ---------
@@ -48,8 +68,9 @@ Internals
 - The catalog's ``searchResults`` method is patched so that it filters trashed objects by default.
 - Trashed content is prevented from beeing published / accessible through the browser unless
   the user has the ``Manager`` role.
-- For restoring content, the permission ``Restore trashed content`` is required, which is
-  granted by default to the roles ``Manager`` and ``Site Administrator``.
+- For restoring content, the permissions ``Restore trashed content`` and ``Add portal content``
+  are required. The ``Restore trashed content`` is granted by default to the roles
+  ``Manager`` and ``Site Administrator`` on the site root.
 
 Development
 -----------

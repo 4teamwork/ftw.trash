@@ -14,7 +14,8 @@
   <include file="profiles.zcml" />
   <include package=".browser" />
 
-  <adapter name="trashed" factory=".indexers.trashed_indexer" />
+  <adapter factory=".indexers.trashed_indexer" name="trashed" />
+  <adapter factory=".trasher.default_is_restore_allowed" />
 
   <subscriber
       for="ZPublisher.interfaces.IPubAfterTraversal"

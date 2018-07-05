@@ -3,12 +3,18 @@ from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testing import freeze
 from ftw.trash.exceptions import NotRestorable
+from ftw.trash.interfaces import IIsRestoreAllowedAdapter
 from ftw.trash.interfaces import IRestorable
 from ftw.trash.interfaces import ITrashed
 from ftw.trash.tests import duplicate_with_dexterity
 from ftw.trash.tests import FunctionalTestCase
 from ftw.trash.trasher import Trasher
 from zExceptions import Unauthorized
+from zope.component import adapter
+from zope.component import getMultiAdapter
+from zope.component import getSiteManager
+from zope.interface import implementer
+from zope.interface import Interface
 
 
 @duplicate_with_dexterity
@@ -272,3 +278,40 @@ class TestTrasher(FunctionalTestCase):
 
         self.assert_modified_date(restored, folder)
         self.assert_modified_date(restored, subfolder)
+
+    def test_is_restorable_respectsIIsRestoreAllowedAdapter(self):
+        response = {'allowed': True, 'called': 0}
+        self.grant('Site Administrator')
+
+        folder = create(Builder('folder'))
+        Trasher(folder).trash()
+
+        @implementer(IIsRestoreAllowedAdapter)
+        @adapter(Interface, Interface)
+        def is_restore_allowed(context, request):
+            response['called'] += 1
+            return response['allowed']
+
+        getSiteManager().registerAdapter(is_restore_allowed)
+
+        self.assertTrue(Trasher(folder).is_restorable())
+        response['allowed'] = False
+        self.assertFalse(Trasher(folder).is_restorable())
+        self.assertEqual(2, response['called'])
+
+
+@duplicate_with_dexterity
+class TestDefaultIsRestoreAllowedAdapter(FunctionalTestCase):
+
+    def test_requires_add_permission_on_parent(self):
+        self.grant('Contributor')
+        parent = create(Builder('folder'))
+        child = create(Builder('folder').within(parent))
+
+        parent.manage_permission('Add portal content', roles=[], acquire=False)
+        self.assertFalse(
+            getMultiAdapter((child, self.request), IIsRestoreAllowedAdapter))
+
+        parent.manage_permission('Add portal content', roles=['Contributor'], acquire=False)
+        self.assertTrue(
+            getMultiAdapter((child, self.request), IIsRestoreAllowedAdapter))
