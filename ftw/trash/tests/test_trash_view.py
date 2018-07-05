@@ -87,6 +87,24 @@ class TestTrashView(FunctionalTestCase):
         transaction.begin()
         self.assertFalse(ITrashed.providedBy(folder))
 
+    @browsing
+    def test_error_message_when_restore_not_allowed(self, browser):
+        self.grant('Site Administrator')
+
+        parent = create(Builder('folder').titled(u'Parent'))
+        folder = create(Builder('folder').titled(u'My Folder').within(parent))
+        Trasher(folder).trash()
+        parent.manage_permission('Add portal content', roles=[], acquire=False)
+        transaction.commit()
+
+        browser.login().open().click_on('Trash').click_on('Restore')
+        statusmessages.assert_message(
+            'You are not allowed to restore "My Folder".'
+            ' You may need to change the workflow state of the parent content.')
+
+        transaction.begin()
+        self.assertTrue(ITrashed.providedBy(folder))
+
     @property
     def type_label(self):
         if self.is_dexterity:

@@ -35,8 +35,17 @@ class TrashView(BrowserView):
             raise BadRequest()
 
         obj = brains[0].getObject()
-        Trasher(obj).restore()
+        trasher = Trasher(obj)
+        if not trasher.is_restorable():
+            IStatusMessage(self.request).addStatusMessage(
+                _(u'statusmessage_content_restore_not_allowed',
+                  default=(u'You are not allowed to restore "${title}".'
+                           u' You may need to change the workflow state of the parent content.'),
+                  mapping={u'title': safe_unicode(obj.Title())}),
+                type='error')
+            return self.request.response.redirect(self.context.absolute_url() + '/trash')
 
+        trasher.restore()
         IStatusMessage(self.request).addStatusMessage(
             _(u'statusmessage_content_restored',
               default=u'The content "${title}" has been restored.',

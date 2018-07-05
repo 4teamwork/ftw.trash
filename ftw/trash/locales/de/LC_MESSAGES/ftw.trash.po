@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-07-05 06:22+0000\n"
+"POT-Creation-Date: 2018-07-05 07:04+0000\n"
 "PO-Revision-Date: 2018-07-04 20:40+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,8 +27,13 @@ msgstr "ftw.trash"
 msgid "ftw.trash: uninstall"
 msgstr "ftw.trash: deinstallieren"
 
-#. Default: "The content \"${title}\" has been restored."
+#. Default: "You are not allowed to restore \"${title}\". You may need to change the workflow state of the parent content."
 #: ./ftw/trash/browser/trash.py:41
+msgid "statusmessage_content_restore_not_allowed"
+msgstr "Sie dürfen \"${title}\" nicht wiederherstellen. Möglicherweise können Sie den Status des übergeordneten Inhalts verändern."
+
+#. Default: "The content \"${title}\" has been restored."
+#: ./ftw/trash/browser/trash.py:50
 msgid "statusmessage_content_restored"
 msgstr "Der Inhalt \"${title}\" wurde wieder hergestellt."
 
@@ -51,4 +56,3 @@ msgstr "Titel"
 #: ./ftw/trash/browser/templates/trash.pt:18
 msgid "trashview_type"
 msgstr "Typ"
-
