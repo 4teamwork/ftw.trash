@@ -7,6 +7,7 @@ Trashed content can then be restored when needed.
 Installation and usage
 ----------------------
 
+- Be aware that ``ftw.trash`` requires and installs ``collective.deletepermission``.
 - Add ``ftw.trash`` to the eggs in your buildout configuration:
 
   ::
@@ -17,7 +18,13 @@ Installation and usage
           ftw.trash
 
 - Install the ``ftw.trash`` addon in Plone (Addons control panel or portal_setup or quickinstaller).
-- Be aware that ``ftw.trash`` requires and installs ``collective.deletepermission``.
+- Deleting content looks exactly as in standard Plone, but it does not actually delete the content
+  but only hide it.
+- Administrators can restore content with a global trash view, accessible via the user menu.
+- Personal trashes are not implemented at the moment.
+
+.. image:: https://github.com/4teamwork/ftw.trash/raw/master/docs/trash.png
+
 
 Querying
 ~~~~~~~~
