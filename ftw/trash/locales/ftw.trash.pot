@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-07-04 18:37+0000\n"
+"POT-Creation-Date: 2018-07-05 06:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0\n"
 "Preferred-Encodings: utf-8 latin1\n"
 
-#: ./ftw/trash/browser/templates/trash.pt:36
+#: ./ftw/trash/browser/templates/trash.pt:37
 msgid "Restore"
 msgstr ""
 
@@ -31,7 +31,7 @@ msgid "ftw.trash: uninstall"
 msgstr ""
 
 #. Default: "The content \"${title}\" has been restored."
-#: ./ftw/trash/browser/trash.py:42
+#: ./ftw/trash/browser/trash.py:41
 msgid "statusmessage_content_restored"
 msgstr ""
 
@@ -43,11 +43,6 @@ msgstr ""
 #. Default: "Last modified"
 #: ./ftw/trash/browser/templates/trash.pt:17
 msgid "trashview_last_modified"
-msgstr ""
-
-#. Default: "Location"
-#: ./ftw/trash/browser/templates/trash.pt:20
-msgid "trashview_location"
 msgstr ""
 
 #. Default: "Title"

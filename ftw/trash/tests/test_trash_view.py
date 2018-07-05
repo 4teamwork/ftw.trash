@@ -56,8 +56,7 @@ class TestTrashView(FunctionalTestCase):
         self.assertEquals(
             [{'Last modified': 'Dec 15, 2016 05:09 PM',
               'Type': self.type_label,
-              'Title': 'Delete that',
-              'Location': 'parent',
+              'Title': 'Delete that http://nohost/plone/parent/delete-that',
               '': ''}],
             browser.css('.trash-table').first.dicts())
 
@@ -77,8 +76,7 @@ class TestTrashView(FunctionalTestCase):
         self.assertEquals(
             [{'Last modified': 'Jan 01, 2011 12:00 AM',
               'Type': self.type_label,
-              'Title': 'My Folder',
-              'Location': '.',
+              'Title': 'My Folder http://nohost/plone/my-folder',
               '': ''}],
             browser.css('.trash-table').first.dicts())
 

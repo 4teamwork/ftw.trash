@@ -12,7 +12,6 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.statusmessages.interfaces import IStatusMessage
 from zExceptions import BadRequest
 from zope.component.hooks import getSite
-import os.path
 
 
 class TrashView(BrowserView):
@@ -62,5 +61,5 @@ class TrashView(BrowserView):
             'type': brain.Type,
             'modified': self.context.toLocalizedTime(brain.modified, long_format=1),
             'title': brain.Title,
-            'location': os.path.relpath(os.path.dirname(brain.getPath()), self.portal_path),
+            'location': brain.getURL(),
             'uuid': brain.UID}
