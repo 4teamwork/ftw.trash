@@ -9,7 +9,7 @@
   <div metal:fill-slot="main">
     <metal:main-macro define-macro="main">
 
-      <h1 class="documentFirstHeading">Trash</h1>
+      <h1 class="documentFirstHeading" i18n:translate="">Trash</h1>
 
       <table class="listing trash-table">
         <thead>
