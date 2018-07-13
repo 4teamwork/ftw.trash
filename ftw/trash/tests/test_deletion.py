@@ -8,7 +8,9 @@ from ftw.trash.interfaces import IRestorable
 from ftw.trash.interfaces import ITrashed
 from ftw.trash.tests import duplicate_with_dexterity
 from ftw.trash.tests import FunctionalTestCase
+from plone.uuid.interfaces import IUUID
 from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.utils import isLinked
 from zExceptions import Unauthorized
 
 
@@ -92,3 +94,21 @@ class TestDeletion(FunctionalTestCase):
             parent.manage_delObjects([child.getId()])
             self.assertIn(child.getId(), parent.objectIds())
             self.assertTrue(ITrashed.providedBy(child), 'Authorized user couldnt trash content.')
+
+    def test_confirmation_dialog_link_integrity_checker_should_actually_delete_the_object(self):
+        """The confirmation dialog deletes the object within a later rolled-back savepoint
+        in order to detect broken links.
+        If we only trash the object, the link checker will no longer work.
+        Therefore ftw.trash must back off while within the link integrity checker.
+        """
+        if self.is_dexterity:
+            # the test does not work with dexterity.
+            return
+
+        self.grant('Site Administrator')
+        target = create(Builder('folder'))
+        # be aware that the page object is always archetypes.
+        create(Builder('page')
+               .having(text='<p><a href="resolveuid/{}">folder</a>'.format(IUUID(target))))
+
+        self.assertTrue(isLinked(target))

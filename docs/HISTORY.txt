@@ -6,6 +6,7 @@ Changelog
 ------------------
 
 - Fire events when trashing and restoring object. [jone]
+- Do not intercept link integrity checker. [jone]
 
 
 1.0.0 (2018-07-05)
