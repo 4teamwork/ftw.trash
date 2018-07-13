@@ -3,7 +3,11 @@ from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testing import freeze
 from ftw.trash.exceptions import NotRestorable
+from ftw.trash.interfaces import IBeforeObjectRestoredEvent
+from ftw.trash.interfaces import IBeforeObjectTrashedEvent
 from ftw.trash.interfaces import IIsRestoreAllowedAdapter
+from ftw.trash.interfaces import IObjectRestoredEvent
+from ftw.trash.interfaces import IObjectTrashedEvent
 from ftw.trash.interfaces import IRestorable
 from ftw.trash.interfaces import ITrashed
 from ftw.trash.tests import duplicate_with_dexterity
@@ -298,6 +302,50 @@ class TestTrasher(FunctionalTestCase):
         response['allowed'] = False
         self.assertFalse(Trasher(folder).is_restorable())
         self.assertEqual(2, response['called'])
+
+    def test_events_are_fired(self):
+        self.grant('Site Administrator')
+        folder = create(Builder('folder'))
+        fired_events = []
+        registerHandler = self.portal.getSiteManager().registerHandler
+
+        @registerHandler
+        @adapter(Interface, IBeforeObjectTrashedEvent)
+        def before_trashing(object, event):
+            self.assertEqual(folder, object)
+            self.assertEqual(folder, event.object)
+            self.assertFalse(ITrashed.providedBy(object))
+            fired_events.append(type(event).__name__)
+
+        @registerHandler
+        @adapter(Interface, IObjectTrashedEvent)
+        def after_trashing(object, event):
+            self.assertEqual(folder, object)
+            self.assertEqual(folder, event.object)
+            self.assertTrue(ITrashed.providedBy(object))
+            fired_events.append(type(event).__name__)
+
+        @registerHandler
+        @adapter(Interface, IBeforeObjectRestoredEvent)
+        def before_restoring(object, event):
+            self.assertEqual(folder, object)
+            self.assertEqual(folder, event.object)
+            self.assertTrue(ITrashed.providedBy(object))
+            fired_events.append(type(event).__name__)
+
+        @registerHandler
+        @adapter(Interface, IObjectRestoredEvent)
+        def after_restoring(object, event):
+            self.assertEqual(folder, object)
+            self.assertEqual(folder, event.object)
+            self.assertFalse(ITrashed.providedBy(object))
+            fired_events.append(type(event).__name__)
+
+        Trasher(folder).trash()
+        self.assertEquals(['BeforeObjectTrashedEvent', 'ObjectTrashedEvent'], fired_events)
+        fired_events[:] = []
+        Trasher(folder).restore()
+        self.assertEquals(['BeforeObjectRestoredEvent', 'ObjectRestoredEvent'], fired_events)
 
 
 @duplicate_with_dexterity

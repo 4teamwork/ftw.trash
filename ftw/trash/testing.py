@@ -1,16 +1,16 @@
 from ftw.builder.testing import BUILDER_LAYER
+from ftw.testing.layer import COMPONENT_REGISTRY_ISOLATION
 from ftw.builder.testing import functional_session_factory
 from ftw.builder.testing import set_builder_session_factory
 from plone.app.testing import applyProfile
 from plone.app.testing import FunctionalTesting
-from plone.app.testing import PLONE_FIXTURE
 from plone.app.testing import PloneSandboxLayer
 from plone.testing import z2
 from zope.configuration import xmlconfig
 
 
 class TrashLayer(PloneSandboxLayer):
-    defaultBases = (PLONE_FIXTURE, BUILDER_LAYER)
+    defaultBases = (COMPONENT_REGISTRY_ISOLATION, BUILDER_LAYER)
 
     def setUpZope(self, app, configurationContext):
         xmlconfig.string(
@@ -43,7 +43,7 @@ class TrashNotInstalledLayer(PloneSandboxLayer):
     apply patches, but the patches should only change behavior when also the Generic Setup
     profile is installed.
     """
-    defaultBases = (PLONE_FIXTURE, BUILDER_LAYER)
+    defaultBases = (COMPONENT_REGISTRY_ISOLATION, BUILDER_LAYER)
 
     def setUpZope(self, app, configurationContext):
         xmlconfig.string(
