@@ -105,6 +105,57 @@ class TestTrashView(FunctionalTestCase):
         transaction.begin()
         self.assertTrue(ITrashed.providedBy(folder))
 
+    @browsing
+    def test_empy_trash(self, browser):
+        self.grant('Site Administrator')
+
+        Trasher(create(Builder('folder').titled(u'Foo'))).trash()
+        self.assertIn('foo', self.portal.objectIds())
+        transaction.commit()
+
+        browser.login().open().click_on('Trash')
+        self.assertEquals('Trash', plone.first_heading())
+
+        browser.click_on('Clean trash')
+        self.assertEquals(
+            'Are you sure you want to permanently delete all objects in the trash?',
+            plone.first_heading())
+        self.assertIn('foo', self.portal.objectIds())
+
+        browser.click_on('Cancel')
+        self.assertEquals('Trash', plone.first_heading())
+        self.assertIn('foo', self.portal.objectIds())
+
+        browser.click_on('Clean trash').click_on('Delete')
+        self.assertEquals('Trash', plone.first_heading())
+        self.assertNotIn('foo', self.portal.objectIds())
+
+    @browsing
+    def test_empty_trash_button_not_visible_without_permission(self, browser):
+        self.grant('Site Administrator')
+        browser.login().open().click_on('Trash')
+
+        self.assertTrue(browser.find('Clean trash'))
+
+        self.portal.manage_permission('Clean trash', roles=[], acquire=False)
+        transaction.commit()
+
+        browser.reload()
+        self.assertFalse(browser.find('Clean trash'))
+
+    @browsing
+    def test_empty_trash_protected_by_permission(self, browser):
+        self.grant('Site Administrator')
+        browser.login().open().click_on('Trash')
+
+        browser.click_on('Clean trash')
+
+        self.portal.manage_permission('Clean trash', roles=[], acquire=False)
+        transaction.commit()
+
+        with browser.expect_unauthorized():
+            browser.click_on('Delete')
+
     @property
     def type_label(self):
         if self.is_dexterity:

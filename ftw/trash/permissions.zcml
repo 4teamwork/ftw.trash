@@ -5,4 +5,8 @@
       id="ftw.trash.RestoreTrashedContent"
       title="Restore trashed content" />
 
+  <permission
+      id="ftw.trash.CleanTrash"
+      title="Clean trash" />
+
 </configure>

@@ -1,4 +1,7 @@
+from AccessControl import getSecurityManager
 from AccessControl.requestmethod import postonly
+from Acquisition import aq_inner
+from Acquisition import aq_parent
 from ftw.trash import _
 from ftw.trash.interfaces import IRestorable
 from ftw.trash.trasher import Trasher
@@ -11,17 +14,20 @@ from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.statusmessages.interfaces import IStatusMessage
 from zExceptions import BadRequest
+from zExceptions import Unauthorized
 from zope.component.hooks import getSite
 
 
 class TrashView(BrowserView):
     tempalte = ViewPageTemplateFile('templates/trash.pt')
+    clean_confirmation_tempalte = ViewPageTemplateFile('templates/clean-trash-confirmation.pt')
 
     max_amount_of_items = 1000
 
     def __call__(self):
         self.request.set('disable_border', '1')
         self.portal_path = '/'.join(getSite().getPhysicalPath())
+        self.can_clean_trash = getSecurityManager().checkPermission('Clean trash', self.context)
         return self.tempalte()
 
     @postonly
@@ -53,6 +59,36 @@ class TrashView(BrowserView):
             type='info')
 
         self.request.response.redirect(obj.absolute_url())
+
+    def confirm_clean_trash(self):
+        """Show confirmation dialog for cleaning the trash.
+        """
+        self.request.set('disable_border', '1')
+        return self.clean_confirmation_tempalte()
+
+    @postonly
+    @protect(CheckAuthenticator)
+    def clean_trash(self, REQUEST):
+        """Clean the trash by permantly deleting all trashed objects.
+        """
+        if self.request.form.get('cancel'):
+            return self.request.response.redirect(self.context.absolute_url() + '/trash')
+
+        elif self.request.form.get('delete'):
+            if not getSecurityManager().checkPermission('Clean trash', self.context):
+                raise Unauthorized()
+
+            catalog = getToolByName(self.context, 'portal_catalog')
+            query = {
+                'object_provides': IRestorable.__identifier__,
+                'trashed': True}
+            for brain in catalog(query):
+                obj = brain.getObject()
+                aq_parent(aq_inner(obj))._old_manage_delObjects([obj.getId()])
+            return self.request.response.redirect(self.context.absolute_url() + '/trash')
+
+        else:
+            raise BadRequest()
 
     def get_trashed_items(self):
         catalog = getToolByName(self.context, 'portal_catalog')

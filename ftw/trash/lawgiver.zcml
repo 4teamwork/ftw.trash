@@ -5,6 +5,7 @@
 
   <include package="ftw.lawgiver" file="lawgiver.zcml" />
 
-  <lawgiver:ignore permissions="Restore trashed content" />
+  <lawgiver:ignore permissions="Restore trashed content,
+                                Clean trash" />
 
 </configure>

@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-07-05 07:04+0000\n"
+"POT-Creation-Date: 2018-07-13 19:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,10 +14,31 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0\n"
 "Preferred-Encodings: utf-8 latin1\n"
 
+#: ./ftw/trash/browser/templates/clean-trash-confirmation.pt:12
+msgid "Are you sure you want to permanently delete all objects in the trash?"
+msgstr ""
+
+#: ./ftw/trash/browser/templates/clean-trash-confirmation.pt:25
+msgid "Cancel"
+msgstr ""
+
+#: ./ftw/trash/browser/templates/trash.pt:47
+msgid "Clean trash"
+msgstr ""
+
+#: ./ftw/trash/browser/templates/clean-trash-confirmation.pt:16
+msgid "Cleaning the trash deletes all content in the trash and their children permanently. Be aware that this may delete more content than visible."
+msgstr ""
+
+#: ./ftw/trash/browser/templates/clean-trash-confirmation.pt:23
+msgid "Delete"
+msgstr ""
+
 #: ./ftw/trash/browser/templates/trash.pt:37
 msgid "Restore"
 msgstr ""
 
+#: ./ftw/trash/browser/templates/trash.pt:12
 #: ./ftw/trash/profiles/default/actions.xml
 msgid "Trash"
 msgstr ""
@@ -31,12 +52,12 @@ msgid "ftw.trash: uninstall"
 msgstr ""
 
 #. Default: "You are not allowed to restore \"${title}\". You may need to change the workflow state of the parent content."
-#: ./ftw/trash/browser/trash.py:41
+#: ./ftw/trash/browser/trash.py:44
 msgid "statusmessage_content_restore_not_allowed"
 msgstr ""
 
 #. Default: "The content \"${title}\" has been restored."
-#: ./ftw/trash/browser/trash.py:50
+#: ./ftw/trash/browser/trash.py:53
 msgid "statusmessage_content_restored"
 msgstr ""
 
