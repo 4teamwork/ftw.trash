@@ -1,0 +1,31 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="ftw.trash">
+
+  <div metal:fill-slot="main">
+    <metal:main-macro define-macro="main">
+
+      <h1 class="documentFirstHeading" i18n:translate="">
+        Are you sure you want to permanently delete all objects in the trash?
+      </h1>
+
+      <p i18n:translate="">
+        Cleaning the trash deletes all content in the trash and their children permanently.
+        Be aware that this may delete more content than visible.
+      </p>
+
+      <form method="POST" tal:attributes="action string:${request/URL}/../clean_trash">
+        <span tal:replace="structure context/@@authenticator/authenticator"/>
+        <input type="submit" class="destructive button"
+               name="delete" value="Delete" i18n:attributes="value" />
+        <input type="submit" class="standalone button"
+               name="cancel" value="Cancel" i18n:attributes="value" />
+      </form>
+
+    </metal:main-macro>
+  </div>
+</html>
