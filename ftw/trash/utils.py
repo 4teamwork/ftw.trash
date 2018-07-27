@@ -20,3 +20,11 @@ def within_link_integrity_check():
 
         if frame.f_code == isLinked.func_code:
             return True
+
+
+def called_from_ZMI(request):
+    """Returns True when the object deletion was called from ZMI.
+    """
+    if request is None:
+        return None
+    return request.PUBLISHED.__name__ == 'manage_delObjects'
