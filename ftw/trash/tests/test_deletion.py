@@ -26,6 +26,8 @@ class TestDeletion(FunctionalTestCase):
         subfolder = create(Builder('folder').within(folder))
         self.assertIn(folder.getId(), aq_parent(aq_inner(folder)).objectIds())
         self.assertEqual(3, len(catalog.unrestrictedSearchResults()))
+        self.assert_provides(folder, None)
+        self.assert_provides(subfolder, None)
 
         browser.login().visit(folder)
         browser.click_on('Delete')
@@ -33,15 +35,14 @@ class TestDeletion(FunctionalTestCase):
             'Do you really want to delete this folder and all its contents?'
             ' (This will delete a total of 2 items.)',
             plone.first_heading())
+        self.assert_provides(folder, None)
+        self.assert_provides(subfolder, None)
 
         browser.click_on('Delete')
         self.assertIn(folder.getId(), aq_parent(aq_inner(folder)).objectIds())
         self.assertEqual(3, len(catalog.unrestrictedSearchResults()))
-        self.assertTrue(IRestorable.providedBy(folder), 'Folder should provide IRestorable')
-        self.assertTrue(ITrashed.providedBy(folder), 'Folder should provide ITrashed')
-        self.assertFalse(IRestorable.providedBy(subfolder),
-                         'Subfolder should not provide IRestorable')
-        self.assertTrue(ITrashed.providedBy(subfolder), 'Subfolder should provide ITrashed')
+        self.assert_provides(folder, IRestorable, ITrashed)
+        self.assert_provides(subfolder, ITrashed)
 
     @browsing
     def test_children_of_site_root_are_trashed_instead_of_deleted(self, browser):
@@ -51,6 +52,7 @@ class TestDeletion(FunctionalTestCase):
         folder = create(Builder('folder'))
         self.assertIn(folder.getId(), aq_parent(aq_inner(folder)).objectIds())
         self.assertEqual(1, len(catalog.unrestrictedSearchResults()))
+        self.assert_provides(folder, None)
 
         browser.login().visit(folder)
         browser.click_on('Delete')
@@ -60,8 +62,7 @@ class TestDeletion(FunctionalTestCase):
         browser.click_on('Delete')
         self.assertIn(folder.getId(), aq_parent(aq_inner(folder)).objectIds())
         self.assertEqual(1, len(catalog.unrestrictedSearchResults()))
-        self.assertTrue(IRestorable.providedBy(folder), 'Folder should provide IRestorable')
-        self.assertTrue(ITrashed.providedBy(folder), 'Folder should provide ITrashed')
+        self.assert_provides(folder, IRestorable, ITrashed)
 
     def test_manage_delObjects_requires_both_delete_permissions(self):
         """collective.deletepermission adapts the behavior so that a user needs both,
@@ -80,20 +81,23 @@ class TestDeletion(FunctionalTestCase):
         child = create(Builder('folder').within(parent))
         child.manage_permission('Delete portal content', roles=['Contributor'], acquire=False)
         self.assertIn(child.getId(), parent.objectIds())
-        self.assertFalse(ITrashed.providedBy(parent))
+        self.assert_provides(parent, None)
+        self.assert_provides(child, None)
 
         with self.assertRaises(Unauthorized):
             # Our test user with role Manager is not allowed to delete the child because
             # we have limited the permissions to "Contributor".
             parent.manage_delObjects([child.getId()])
             self.assertIn(child.getId(), parent.objectIds())
-            self.assertFalse(ITrashed.providedBy(parent), 'Unauthorized user could trash content.')
+            self.assert_provides(parent, None)
+            self.assert_provides(child, None)
 
         user = create(Builder('user').with_roles('Contributor', on=parent))
         with self.user(user):
             parent.manage_delObjects([child.getId()])
             self.assertIn(child.getId(), parent.objectIds())
-            self.assertTrue(ITrashed.providedBy(child), 'Authorized user couldnt trash content.')
+            self.assert_provides(parent, None)
+            self.assert_provides(child, IRestorable, ITrashed)
 
     def test_confirmation_dialog_link_integrity_checker_should_actually_delete_the_object(self):
         """The confirmation dialog deletes the object within a later rolled-back savepoint

@@ -3,6 +3,8 @@ from AccessControl.SecurityManagement import setSecurityManager
 from contextlib import contextmanager
 from DateTime import DateTime
 from ftw.builder import builder_registry
+from ftw.trash.interfaces import IRestorable
+from ftw.trash.interfaces import ITrashed
 from ftw.trash.testing import TRASH_FUNCTIONAL
 from ftw.trash.tests.builders import DXFolderBuilder
 from plone.app.testing import login
@@ -63,6 +65,11 @@ class FunctionalTestCase(TestCase):
         self.assertEqual(
             modified_index._convert(expected), self.get_catalog_indexdata(obj)['modified'],
             '{!r}\'s "modified" index data is wrong'.format(obj))
+
+    def assert_provides(self, obj, *expected):
+        expected = set(filter(None, expected))
+        got = {iface for iface in (IRestorable, ITrashed) if iface.providedBy(obj)}
+        self.assertEquals(expected, got, 'Unexpected interfaces provided by {!r}'.format(obj))
 
     @property
     def is_dexterity(self):

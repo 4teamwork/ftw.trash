@@ -4,7 +4,6 @@ from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import plone
-from ftw.trash.interfaces import ITrashed
 from ftw.trash.testing import TRASH_NOT_INSTALLED_FUNCTIONAL
 from ftw.trash.tests import duplicate_with_dexterity
 from ftw.trash.tests import FunctionalTestCase
@@ -66,17 +65,17 @@ class TestTrashNotInstalled(FunctionalTestCase):
         child = create(Builder('folder').within(parent))
         child.manage_permission('Delete portal content', roles=['Contributor'], acquire=False)
         self.assertIn(child.getId(), parent.objectIds())
-        self.assertFalse(ITrashed.providedBy(parent))
+        self.assert_provides(parent, None)
 
         with self.assertRaises(Unauthorized):
             # Our test user with role Manager is not allowed to delete the child because
             # we have limited the permissions to "Contributor".
             parent.manage_delObjects([child.getId()])
             self.assertIn(child.getId(), parent.objectIds())
-            self.assertFalse(ITrashed.providedBy(parent))
+            self.assert_provides(parent, None)
 
         user = create(Builder('user').with_roles('Contributor', on=parent))
         with self.user(user):
             parent.manage_delObjects([child.getId()])
             self.assertNotIn(child.getId(), parent.objectIds())
-            self.assertFalse(ITrashed.providedBy(parent))
+            self.assert_provides(parent, None)

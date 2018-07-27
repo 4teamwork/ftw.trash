@@ -5,6 +5,7 @@ from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.pages import statusmessages
 from ftw.testing import freeze
+from ftw.trash.interfaces import IRestorable
 from ftw.trash.interfaces import ITrashed
 from ftw.trash.tests import duplicate_with_dexterity
 from ftw.trash.tests import FunctionalTestCase
@@ -68,7 +69,7 @@ class TestTrashView(FunctionalTestCase):
         with freeze(datetime(2011, 1, 1)):
             Trasher(folder).trash()
 
-        self.assertTrue(ITrashed.providedBy(folder))
+        self.assert_provides(folder, IRestorable, ITrashed)
 
         transaction.commit()
         browser.login().open().click_on('Trash')
@@ -85,7 +86,7 @@ class TestTrashView(FunctionalTestCase):
         self.assertEqual(folder.absolute_url(), browser.url)
 
         transaction.begin()
-        self.assertFalse(ITrashed.providedBy(folder))
+        self.assert_provides(folder, None)
 
     @browsing
     def test_error_message_when_restore_not_allowed(self, browser):
@@ -103,7 +104,7 @@ class TestTrashView(FunctionalTestCase):
             ' You may need to change the workflow state of the parent content.')
 
         transaction.begin()
-        self.assertTrue(ITrashed.providedBy(folder))
+        self.assert_provides(folder, IRestorable, ITrashed)
 
     @browsing
     def test_empy_trash(self, browser):

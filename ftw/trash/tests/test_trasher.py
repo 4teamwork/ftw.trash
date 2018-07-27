@@ -28,28 +28,22 @@ class TestTrasher(FunctionalTestCase):
         self.grant('Contributor')
 
         folder = create(Builder('folder'))
-        self.assertFalse(ITrashed.providedBy(folder))
-        self.assertFalse(IRestorable.providedBy(folder))
+        self.assert_provides(folder, None)
 
         Trasher(folder).trash()
-        self.assertTrue(ITrashed.providedBy(folder))
-        self.assertTrue(IRestorable.providedBy(folder))
+        self.assert_provides(folder, IRestorable, ITrashed)
 
     def test_marks_children_of_trashed_folder_only_as_trashed(self):
         self.grant('Contributor')
 
         folder = create(Builder('folder'))
         subfolder = create(Builder('folder').within(folder))
-        self.assertFalse(ITrashed.providedBy(folder))
-        self.assertFalse(IRestorable.providedBy(folder))
-        self.assertFalse(ITrashed.providedBy(subfolder))
-        self.assertFalse(IRestorable.providedBy(subfolder))
+        self.assert_provides(folder, None)
+        self.assert_provides(subfolder, None)
 
         Trasher(folder).trash()
-        self.assertTrue(ITrashed.providedBy(folder))
-        self.assertTrue(IRestorable.providedBy(folder))
-        self.assertTrue(ITrashed.providedBy(subfolder))
-        self.assertFalse(IRestorable.providedBy(subfolder))
+        self.assert_provides(folder, IRestorable, ITrashed)
+        self.assert_provides(subfolder, ITrashed)
 
     def test_catalog_is_updated_when_trashing_content(self):
         self.grant('Contributor')
@@ -92,53 +86,44 @@ class TestTrasher(FunctionalTestCase):
 
         folder = create(Builder('folder'))
         subfolder = create(Builder('folder').within(folder))
-        self.assertFalse(IRestorable.providedBy(folder))
-        self.assertFalse(IRestorable.providedBy(subfolder))
+        self.assert_provides(folder, None)
+        self.assert_provides(subfolder, None)
 
         Trasher(subfolder).trash()
-        self.assertFalse(IRestorable.providedBy(folder))
-        self.assertTrue(IRestorable.providedBy(subfolder))
+        self.assert_provides(folder, None)
+        self.assert_provides(subfolder, IRestorable, ITrashed)
 
         Trasher(folder).trash()
-        self.assertTrue(IRestorable.providedBy(folder))
-        self.assertFalse(IRestorable.providedBy(subfolder))
+        self.assert_provides(folder, IRestorable, ITrashed)
+        self.assert_provides(subfolder, ITrashed)
 
     def test_restorable_content_can_be_restored(self):
         self.grant('Site Administrator')
 
         folder = create(Builder('folder'))
-        self.assertFalse(ITrashed.providedBy(folder))
-        self.assertFalse(IRestorable.providedBy(folder))
+        self.assert_provides(folder, None)
 
         Trasher(folder).trash()
-        self.assertTrue(ITrashed.providedBy(folder))
-        self.assertTrue(IRestorable.providedBy(folder))
+        self.assert_provides(folder, IRestorable, ITrashed)
 
         Trasher(folder).restore()
-        self.assertFalse(ITrashed.providedBy(folder))
-        self.assertFalse(IRestorable.providedBy(folder))
+        self.assert_provides(folder, None)
 
     def test_children_are_restored_correctly(self):
         self.grant('Site Administrator')
 
         folder = create(Builder('folder'))
         subfolder = create(Builder('folder').within(folder))
-        self.assertFalse(ITrashed.providedBy(folder))
-        self.assertFalse(IRestorable.providedBy(folder))
-        self.assertFalse(ITrashed.providedBy(subfolder))
-        self.assertFalse(IRestorable.providedBy(subfolder))
+        self.assert_provides(folder, None)
+        self.assert_provides(subfolder, None)
 
         Trasher(folder).trash()
-        self.assertTrue(ITrashed.providedBy(folder))
-        self.assertTrue(IRestorable.providedBy(folder))
-        self.assertTrue(ITrashed.providedBy(subfolder))
-        self.assertFalse(IRestorable.providedBy(subfolder))
+        self.assert_provides(folder, IRestorable, ITrashed)
+        self.assert_provides(subfolder, ITrashed)
 
         Trasher(folder).restore()
-        self.assertFalse(ITrashed.providedBy(folder))
-        self.assertFalse(IRestorable.providedBy(folder))
-        self.assertFalse(ITrashed.providedBy(subfolder))
-        self.assertFalse(IRestorable.providedBy(subfolder))
+        self.assert_provides(folder, None)
+        self.assert_provides(subfolder, None)
 
     def test_catalog_is_updated_when_restoring_content(self):
         self.grant('Site Administrator')
@@ -221,16 +206,16 @@ class TestTrasher(FunctionalTestCase):
 
         folder = create(Builder('folder').within(parent))
         Trasher(folder).trash()
-        self.assertTrue(ITrashed.providedBy(folder))
+        self.assert_provides(folder, IRestorable, ITrashed)
 
         with self.assertRaises(Unauthorized):
             Trasher(folder).restore()
 
-        self.assertTrue(ITrashed.providedBy(folder))
+        self.assert_provides(folder, IRestorable, ITrashed)
 
         parent.manage_permission('Restore trashed content', roles=['Contributor'], acquire=False)
         Trasher(folder).restore()
-        self.assertFalse(ITrashed.providedBy(folder))
+        self.assert_provides(folder, None)
 
     def test_is_restorable_when_trashed(self):
         self.grant('Site Administrator')
