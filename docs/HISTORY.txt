@@ -5,7 +5,7 @@ Changelog
 1.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fire events when trashing and restoring object. [jone]
 
 
 1.0.0 (2018-07-05)

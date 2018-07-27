@@ -64,6 +64,18 @@ Example:
       parent = aq_parent(aq_inner(context))
       return getSecurityManager().checkPermission('Modify portal content', parent)
 
+
+Events
+~~~~~~
+
+These object events are fired:
+
+- `ftw.trash.interfaces.IBeforeObjectTrashedEvent`: the object will be trashed.
+- `ftw.trash.interfaces.IObjectTrashedEvent`: the object has been trashed.
+- `ftw.trash.interfaces.IBeforeObjectRestoredEvent`: the object will be restored.
+- `ftw.trash.interfaces.IObjectRestoredEvent`: the object has been restored.
+
+
 Internals
 ---------
 

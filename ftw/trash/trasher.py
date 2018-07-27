@@ -2,6 +2,10 @@ from AccessControl import getSecurityManager
 from Acquisition import aq_inner
 from Acquisition import aq_parent
 from collective.deletepermission.del_object import protect_del_objects
+from ftw.trash.events import BeforeObjectRestoredEvent
+from ftw.trash.events import BeforeObjectTrashedEvent
+from ftw.trash.events import ObjectRestoredEvent
+from ftw.trash.events import ObjectTrashedEvent
 from ftw.trash.exceptions import NotRestorable
 from ftw.trash.interfaces import IIsRestoreAllowedAdapter
 from ftw.trash.interfaces import IRestorable
@@ -9,6 +13,7 @@ from ftw.trash.interfaces import ITrashed
 from zExceptions import Unauthorized
 from zope.component import adapter
 from zope.component import getMultiAdapter
+from zope.event import notify
 from zope.interface import alsoProvides
 from zope.interface import implementer
 from zope.interface import Interface
@@ -23,7 +28,9 @@ class Trasher(object):
         self.context = context
 
     def trash(self):
+        notify(BeforeObjectTrashedEvent(self.context))
         self._trash_recursive(self.context, is_root=True)
+        notify(ObjectTrashedEvent(self.context))
 
     def is_restorable(self):
         parent = aq_parent(aq_inner(self.context))
@@ -43,7 +50,9 @@ class Trasher(object):
         if not getSecurityManager().checkPermission('Restore trashed content', self.context):
             raise Unauthorized()
 
+        notify(BeforeObjectRestoredEvent(self.context))
         self._restore_recursive(self.context)
+        notify(ObjectRestoredEvent(self.context))
 
     def _trash_recursive(self, obj, is_root=False):
         protect_del_objects(aq_parent(aq_inner(obj)), obj.getId())
