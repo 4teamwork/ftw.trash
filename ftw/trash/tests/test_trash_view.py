@@ -107,6 +107,30 @@ class TestTrashView(FunctionalTestCase):
         self.assert_provides(folder, IRestorable, ITrashed)
 
     @browsing
+    def test_error_message_when_parent_is_trashed(self, browser):
+        self.grant('Site Administrator')
+
+        parent = create(Builder('folder').titled(u'Parent'))
+        child = create(Builder('folder').titled(u'Child').within(parent))
+        Trasher(parent).trash()
+        Trasher(child).trash()
+        self.assert_provides(parent, IRestorable, ITrashed)
+        self.assert_provides(child, IRestorable, ITrashed)
+        transaction.commit()
+
+        browser.login().open().click_on('Trash')
+        table = browser.css('table.trash-table')
+        table.xpath('//*[text()="Child"]').first.parent('tr').find('Restore').click()
+
+        statusmessages.assert_message(
+            '"Child" cannot be restored because the parent container "Parent" is also'
+            ' trashed. You need to restore the parent first.')
+
+        transaction.begin()
+        self.assert_provides(parent, IRestorable, ITrashed)
+        self.assert_provides(child, IRestorable, ITrashed)
+
+    @browsing
     def test_empy_trash(self, browser):
         self.grant('Site Administrator')
 

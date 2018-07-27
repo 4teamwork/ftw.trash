@@ -5,6 +5,7 @@ Changelog
 1.0.1 (unreleased)
 ------------------
 
+- Do not restore earlier trashed children when restoring parent. [jone]
 - Allow deleting content from ZMI. [jone]
 - Fire events when trashing and restoring object. [jone]
 - Do not intercept link integrity checker. [jone]

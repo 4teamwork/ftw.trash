@@ -76,27 +76,6 @@ class TestTrasher(FunctionalTestCase):
         self.assertNotIn(IRestorable.__identifier__,
                          self.get_catalog_indexdata(subfolder).get('object_provides'))
 
-    def test_IRestorable_is_removed_when_parent_is_also_trashed(self):
-        """Given B is a child of A.
-        When B is trashed, it is IRestorable.
-        But when we also trash A, be should no longer be IRestorable, since its parent
-        is trashed too.
-        """
-        self.grant('Contributor')
-
-        folder = create(Builder('folder'))
-        subfolder = create(Builder('folder').within(folder))
-        self.assert_provides(folder, None)
-        self.assert_provides(subfolder, None)
-
-        Trasher(subfolder).trash()
-        self.assert_provides(folder, None)
-        self.assert_provides(subfolder, IRestorable, ITrashed)
-
-        Trasher(folder).trash()
-        self.assert_provides(folder, IRestorable, ITrashed)
-        self.assert_provides(subfolder, ITrashed)
-
     def test_restorable_content_can_be_restored(self):
         self.grant('Site Administrator')
 
@@ -267,6 +246,38 @@ class TestTrasher(FunctionalTestCase):
 
         self.assert_modified_date(restored, folder)
         self.assert_modified_date(restored, subfolder)
+
+    def test_trashing_and_restoring_parent_of_a_trashed_content_does_not_influence_child(self):
+        """
+        Given a subpage is trashed.
+        When the parent page is also trashed, and later restored, the subpage should still
+        be trashed.
+        The subpage should also stay restorable.
+        """
+        self.grant('Site Administrator')
+
+        folder = create(Builder('folder'))
+        foo = create(Builder('folder').within(folder))
+        bar = create(Builder('folder').within(folder))
+
+        self.assert_provides(folder, None)
+        self.assert_provides(foo, None)
+        self.assert_provides(bar, None)
+
+        Trasher(foo).trash()
+        self.assert_provides(folder, None)
+        self.assert_provides(foo, ITrashed, IRestorable)
+        self.assert_provides(bar, None)
+
+        Trasher(folder).trash()
+        self.assert_provides(folder, ITrashed, IRestorable)
+        self.assert_provides(foo, ITrashed, IRestorable)
+        self.assert_provides(bar, ITrashed)
+
+        Trasher(folder).restore()
+        self.assert_provides(folder, None)
+        self.assert_provides(foo, ITrashed, IRestorable)
+        self.assert_provides(bar, None)
 
     def test_is_restorable_respectsIIsRestoreAllowedAdapter(self):
         response = {'allowed': True, 'called': 0}

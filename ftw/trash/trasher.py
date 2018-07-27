@@ -51,7 +51,7 @@ class Trasher(object):
             raise Unauthorized()
 
         notify(BeforeObjectRestoredEvent(self.context))
-        self._restore_recursive(self.context)
+        self._restore_recursive(self.context, is_root=True)
         notify(ObjectRestoredEvent(self.context))
 
     def _trash_recursive(self, obj, is_root=False):
@@ -59,14 +59,16 @@ class Trasher(object):
         alsoProvides(obj, ITrashed)
         if is_root:
             alsoProvides(obj, IRestorable)
-        else:
-            noLongerProvides(obj, IRestorable)
 
         obj.setModificationDate()
         obj.reindexObject(idxs=['object_provides', 'trashed', 'modified'])
         map(self._trash_recursive, obj.objectValues())
 
-    def _restore_recursive(self, obj):
+    def _restore_recursive(self, obj, is_root=False):
+        if not is_root and IRestorable.providedBy(obj):
+            # This child was deleted separately; stop restore recursion.
+            return
+
         noLongerProvides(obj, ITrashed)
         noLongerProvides(obj, IRestorable)
         obj.setModificationDate()

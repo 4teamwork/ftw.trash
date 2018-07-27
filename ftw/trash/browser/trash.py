@@ -4,6 +4,7 @@ from Acquisition import aq_inner
 from Acquisition import aq_parent
 from ftw.trash import _
 from ftw.trash.interfaces import IRestorable
+from ftw.trash.interfaces import ITrashed
 from ftw.trash.trasher import Trasher
 from itertools import imap
 from plone.protect import CheckAuthenticator
@@ -41,6 +42,17 @@ class TrashView(BrowserView):
             raise BadRequest()
 
         obj = brains[0].getObject()
+        parent = aq_parent(aq_inner(obj))
+        if ITrashed.providedBy(parent):
+            IStatusMessage(self.request).addStatusMessage(
+                _(u'statusmessage_content_restore_error_parent_trashed',
+                  default=(u'"${title}" cannot be restored because the parent container'
+                           u' "${parent}" is also trashed.'
+                           u' You need to restore the parent first.'),
+                  mapping={u'title': safe_unicode(obj.Title()),
+                           u'parent': safe_unicode(parent.Title())}),
+                type='error')
+
         trasher = Trasher(obj)
         if not trasher.is_restorable():
             IStatusMessage(self.request).addStatusMessage(
