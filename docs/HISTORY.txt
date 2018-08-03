@@ -5,8 +5,7 @@ Changelog
 1.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Show changelog on pypi. [jone]
 
 1.1.0 (2018-08-03)
 ------------------
