@@ -5,7 +5,7 @@ Trashed content can then be restored when needed.
 .. contents:: Table of Contents
 
 Installation and usage
-----------------------
+======================
 
 - Be aware that ``ftw.trash`` requires and installs ``collective.deletepermission``.
 - Add ``ftw.trash`` to the eggs in your buildout configuration:
@@ -27,7 +27,7 @@ Installation and usage
 
 
 Querying
-~~~~~~~~
+--------
 
 The catalog is patched, so that it includes the default query ``{'trashed': False}``.
 This makes sure that we only work with not trashed objects by default.
@@ -44,7 +44,7 @@ When using ``portal_catalog.unrestrictedSearchResults`` the behavior is differen
 especially for ``trashed=None``, since this method is not patched.
 
 Manipulate condition for restoring
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+==================================
 
 By default, restoring a page can be compared to adding a new page to its container.
 Therefore we require the ``Add portal content`` permission on the parent.
@@ -66,7 +66,7 @@ Example:
 
 
 Events
-~~~~~~
+------
 
 These object events are fired:
 
@@ -77,7 +77,7 @@ These object events are fired:
 
 
 Internals
----------
+=========
 
 - When content is deleted, it is marked as ``ITrashed`` and ``IRestorable``, children are only
   marked as ``ITrashed``.
@@ -92,7 +92,7 @@ Internals
   ``Manager`` and ``Site Administrator`` on the site root.
 
 Development
------------
+===========
 
 1. Fork this repo
 2. Clone your fork
@@ -106,7 +106,7 @@ Or start an instance by running ``bin/instance fg``.
 
 
 Links
------
+=====
 
 - Github: https://github.com/4teamwork/ftw.trash
 - Issues: https://github.com/4teamwork/ftw.trash/issues
@@ -114,7 +114,7 @@ Links
 
 
 Copyright
----------
+=========
 
 This package is copyright by `4teamwork <http://www.4teamwork.ch/>`_.
 
