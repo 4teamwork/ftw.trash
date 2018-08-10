@@ -5,6 +5,7 @@ Changelog
 1.1.2 (unreleased)
 ------------------
 
+- Fix cleaning trash when there is a parent and a child in the trash at once. [jone]
 - Fix and translate error message when trying to restore child of trashed parent. [jone]
 
 1.1.1 (2018-08-03)

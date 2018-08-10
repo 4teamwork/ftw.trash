@@ -181,6 +181,29 @@ class TestTrashView(FunctionalTestCase):
         with browser.expect_unauthorized():
             browser.click_on('Delete')
 
+    @browsing
+    def test_empty_trash_when_parent_and_child_are_both_trashed(self, browser):
+        """Regression test: when trying to delete a child but the parent was deleted
+        bevore, an exception is raised.
+        Solution: do not delete children and parents in the same set; just delete parents,
+        which is recursive anyway.
+        """
+        self.grant('Site Administrator')
+
+        parent = create(Builder('folder').titled(u'Parent'))
+        child = create(Builder('folder').titled(u'Child').within(parent))
+
+        Trasher(child).trash()
+        Trasher(parent).trash()
+        transaction.commit()
+
+        browser.login().open().click_on('Trash')
+        self.assertEquals('Trash', plone.first_heading())
+
+        self.assertIn('parent', self.portal.objectIds())
+        browser.click_on('Clean trash').click_on('Delete')
+        self.assertNotIn('parent', self.portal.objectIds())
+
     @property
     def type_label(self):
         if self.is_dexterity:

@@ -6,6 +6,7 @@ from ftw.trash import _
 from ftw.trash.interfaces import IRestorable
 from ftw.trash.interfaces import ITrashed
 from ftw.trash.trasher import Trasher
+from ftw.trash.utils import filter_children_in_paths
 from itertools import imap
 from plone.protect import CheckAuthenticator
 from plone.protect import protect
@@ -92,12 +93,19 @@ class TrashView(BrowserView):
                 raise Unauthorized()
 
             catalog = getToolByName(self.context, 'portal_catalog')
-            query = {
-                'object_provides': IRestorable.__identifier__,
-                'trashed': True}
-            for brain in catalog(query):
-                obj = brain.getObject()
+            query = {'object_provides': IRestorable.__identifier__, 'trashed': True}
+
+            paths_to_delete = filter_children_in_paths(
+                [brain.getPath() for brain in catalog(query)])
+            for path in paths_to_delete:
+                obj = self.context.restrictedTraverse(path)
+                got_path = '/'.join(obj.getPhysicalPath())
+                if got_path != path:
+                    raise ValueError('Unexpectly found path {!r} when looking for {!r}'.format(
+                        got_path, path))
+
                 aq_parent(aq_inner(obj))._old_manage_delObjects([obj.getId()])
+
             return self.request.response.redirect(self.context.absolute_url() + '/trash')
 
         else:
