@@ -43,6 +43,23 @@ These filters only apply when ``portal_catalog.searchResults`` is used.
 When using ``portal_catalog.unrestrictedSearchResults`` the behavior is different,
 especially for ``trashed=None``, since this method is not patched.
 
+
+Methods for trashing and deleting
+---------------------------------
+
+``ftw.trash`` patches ``manage_delObjects`` so that it trashes the content instead of deleting
+it. ``ftw.trash`` also adds new methods:
+
+- ``parent.manage_trashObjects([id1, id2, ..])``: trashes the contents.
+- ``parent.manage_immediatelyDeleteObjects(([id1, id2, ..])``: immediately deletes the contents
+  without trashing it.
+- ``parent.manage_delObjects([id1, id2, ..])``: trashes the contents. If called from ZMI (or
+  within link integrity checker), the content is immediately deleted.
+
+The patches are applied on the site root, on DX- and on AT-folders when ``ftw.trash``
+is installed in the path.
+For the methods to work properly, the Generic Setup profile must be installed as well.
+
 Manipulate condition for restoring
 ==================================
 

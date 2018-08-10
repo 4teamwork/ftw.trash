@@ -21,7 +21,13 @@ def manage_delObjects(self, ids=None, REQUEST=None):
        not called_from_ZMI(REQUEST):
         return self.manage_trashObjects(ids=ids, REQUEST=REQUEST)
     else:
-        return self._old_manage_delObjects(ids=ids, REQUEST=REQUEST)
+        return self.manage_immediatelyDeleteObjects(ids=ids, REQUEST=REQUEST)
+
+
+def manage_immediatelyDeleteObjects(self, ids=None, REQUEST=None):
+    """Immediately delete an object instead of only trashing it.
+    """
+    return self._old_manage_delObjects(ids=ids, REQUEST=REQUEST)
 
 
 def searchResults(self, REQUEST=None, **kw):
