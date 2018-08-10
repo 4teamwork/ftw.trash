@@ -89,6 +89,14 @@ class TestTrashView(FunctionalTestCase):
         self.assert_provides(folder, None)
 
     @browsing
+    def test_restore_redirects_to_view_for_files(self, browser):
+        self.grant('Site Administrator')
+        Trasher(create(Builder('file'))).trash()
+        transaction.commit()
+        browser.login().open(view='trash').click_on('Restore')
+        self.assertEquals('http://nohost/plone/file/view', browser.url)
+
+    @browsing
     def test_error_message_when_restore_not_allowed(self, browser):
         self.grant('Site Administrator')
 
