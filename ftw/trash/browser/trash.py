@@ -52,6 +52,7 @@ class TrashView(BrowserView):
                   mapping={u'title': safe_unicode(obj.Title()),
                            u'parent': safe_unicode(parent.Title())}),
                 type='error')
+            return self.request.response.redirect(self.context.absolute_url() + '/trash')
 
         trasher = Trasher(obj)
         if not trasher.is_restorable():

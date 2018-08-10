@@ -5,8 +5,7 @@ Changelog
 1.1.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Fix and translate error message when trying to restore child of trashed parent. [jone]
 
 1.1.1 (2018-08-03)
 ------------------

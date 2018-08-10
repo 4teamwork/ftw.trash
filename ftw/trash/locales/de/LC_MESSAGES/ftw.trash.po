@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-07-13 19:19+0000\n"
+"POT-Creation-Date: 2018-08-10 09:03+0000\n"
 "PO-Revision-Date: 2018-07-04 20:40+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -48,13 +48,18 @@ msgstr "ftw.trash"
 msgid "ftw.trash: uninstall"
 msgstr "ftw.trash: deinstallieren"
 
+#. Default: "\"${title}\" cannot be restored because the parent container \"${parent}\" is also trashed. You need to restore the parent first."
+#: ./ftw/trash/browser/trash.py:48
+msgid "statusmessage_content_restore_error_parent_trashed"
+msgstr "\"${title}\" kann nicht wiederhergestellt werden, solange der übergeordnete Inhalt \"${parent}\" auch im Papierkorb ist. Der übergeordnete Inhalt muss zuerst wiederhergestellt werden."
+
 #. Default: "You are not allowed to restore \"${title}\". You may need to change the workflow state of the parent content."
-#: ./ftw/trash/browser/trash.py:44
+#: ./ftw/trash/browser/trash.py:59
 msgid "statusmessage_content_restore_not_allowed"
 msgstr "Sie dürfen \"${title}\" nicht wiederherstellen. Möglicherweise können Sie den Status des übergeordneten Inhalts verändern."
 
 #. Default: "The content \"${title}\" has been restored."
-#: ./ftw/trash/browser/trash.py:53
+#: ./ftw/trash/browser/trash.py:68
 msgid "statusmessage_content_restored"
 msgstr "Der Inhalt \"${title}\" wurde wieder hergestellt."
 
