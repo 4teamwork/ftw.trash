@@ -116,3 +116,18 @@ class TestDeletion(FunctionalTestCase):
                .having(text='<p><a href="resolveuid/{}">folder</a>'.format(IUUID(target))))
 
         self.assertTrue(isLinked(target))
+
+    def test_trash_provides_manage_immediatelyDeleteObjects_method_on_portal(self):
+        self.grant('Site Administrator')
+        folder_id = create(Builder('folder')).getId()
+        self.assertIn(folder_id, self.portal.objectIds())
+        self.portal.manage_immediatelyDeleteObjects(folder_id)
+        self.assertNotIn(folder_id, self.portal.objectIds())
+
+    def test_trash_provides_manage_immediatelyDeleteObjects_method_on_folder(self):
+        self.grant('Site Administrator')
+        parent = create(Builder('folder').titled(u'Parent'))
+        folder_id = create(Builder('folder').within(parent)).getId()
+        self.assertIn(folder_id, parent.objectIds())
+        parent.manage_immediatelyDeleteObjects(folder_id)
+        self.assertNotIn(folder_id, parent.objectIds())

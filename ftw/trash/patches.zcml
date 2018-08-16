@@ -17,6 +17,14 @@
       />
 
   <monkey:patch
+      description="Patch site root manage_immediatelyDeleteObjects"
+      class="Products.CMFPlone.Portal.PloneSite"
+      original="manage_immediatelyDeleteObjects"
+      replacement="ftw.trash.patches.manage_immediatelyDeleteObjects"
+      ignoreOriginal="true"
+      />
+
+  <monkey:patch
       description="Patch site root manage_delObjects"
       class="Products.CMFPlone.Portal.PloneSite"
       original="manage_delObjects"
@@ -33,6 +41,14 @@
         class="plone.dexterity.content.Container"
         original="manage_trashObjects"
         replacement="ftw.trash.patches.manage_trashObjects"
+        ignoreOriginal="true"
+        />
+
+    <monkey:patch
+        description="Patch DX manage_immediatelyDeleteObjects"
+        class="plone.dexterity.content.Container"
+        original="manage_immediatelyDeleteObjects"
+        replacement="ftw.trash.patches.manage_immediatelyDeleteObjects"
         ignoreOriginal="true"
         />
 
@@ -54,6 +70,14 @@
         class="Products.Archetypes.BaseFolder.BaseFolderMixin"
         original="manage_trashObjects"
         replacement="ftw.trash.patches.manage_trashObjects"
+        ignoreOriginal="true"
+        />
+
+    <monkey:patch
+        description="Patch AT manage_immediatelyDeleteObjects"
+        class="Products.Archetypes.BaseFolder.BaseFolderMixin"
+        original="manage_immediatelyDeleteObjects"
+        replacement="ftw.trash.patches.manage_immediatelyDeleteObjects"
         ignoreOriginal="true"
         />
 

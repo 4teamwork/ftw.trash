@@ -5,6 +5,7 @@ Changelog
 1.1.2 (unreleased)
 ------------------
 
+- Provide a manage_immediatelyDeleteObjects method. [jone]
 - Fix cleaning trash when there is a parent and a child in the trash at once. [jone]
 - Fix and translate error message when trying to restore child of trashed parent. [jone]
 

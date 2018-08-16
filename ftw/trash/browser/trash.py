@@ -104,7 +104,7 @@ class TrashView(BrowserView):
                     raise ValueError('Unexpectly found path {!r} when looking for {!r}'.format(
                         got_path, path))
 
-                aq_parent(aq_inner(obj))._old_manage_delObjects([obj.getId()])
+                aq_parent(aq_inner(obj)).manage_immediatelyDeleteObjects([obj.getId()])
 
             return self.request.response.redirect(self.context.absolute_url() + '/trash')
 
