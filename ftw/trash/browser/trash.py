@@ -72,7 +72,8 @@ class TrashView(BrowserView):
               mapping={u'title': safe_unicode(obj.Title())}),
             type='info')
 
-        self.request.response.redirect(obj.absolute_url())
+        target_url = obj.restrictedTraverse('@@plone_context_state').view_url()
+        self.request.response.redirect(target_url)
 
     def confirm_clean_trash(self):
         """Show confirmation dialog for cleaning the trash.
