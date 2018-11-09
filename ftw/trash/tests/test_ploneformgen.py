@@ -32,3 +32,17 @@ class TestPloneFormGen(FunctionalTestCase):
 
         browser.reload()
         self.assertFalse(browser.find('Your E-Mail Address'))
+
+    @browsing
+    def test_ploneformgen_field_not_required(self, browser):
+        form_folder = create(Builder('FormFolder'))
+        form_folder.manage_delObjects(['replyto'])
+        transaction.commit()
+
+        browser.login().visit(form_folder)
+        browser.find_form_by_field('Subject').fill({
+            'Subject': 'Foo',
+             'Comments': 'Bar'
+        }).submit()
+
+        self.assertNotIn('This field is required.', browser.css('.fieldErrorBox').text)
