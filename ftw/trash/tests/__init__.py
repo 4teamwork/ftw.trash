@@ -85,7 +85,7 @@ def duplicate_with_dexterity(klass):
     (postfixed "Dexterity"), where the "folder" builder is changed to a DX builder
     creating the FTI "dxfolder", which is registered in a Generic Setup test-profile.
 
-    So if you use this decoratior, be aware, that only "Builder('folder')" is replaced
+    So if you use this decorator, be aware, that only "Builder('folder')" is replaced
     with dexterity, all other builders and other code does not change.
     """
 

@@ -1,3 +1,4 @@
+from ftw.trash.interfaces import ITrashed
 from ftw.trash.trasher import Trasher
 from ftw.trash.utils import called_from_ZMI
 from ftw.trash.utils import is_trash_profile_installed
@@ -50,3 +51,8 @@ def searchResults(self, REQUEST=None, **kw):
         kw['trashed'] = [True, False, None]
 
     return self._old_searchResults(REQUEST, **kw)
+
+
+def _getFieldObjects(self, *args, **kwargs):
+    return filter(lambda obj: not ITrashed.providedBy(obj),
+                  self._old__getFieldObjects(*args, **kwargs))

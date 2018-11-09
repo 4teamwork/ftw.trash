@@ -113,4 +113,16 @@
       order="1100"
       />
 
+  <!-- PLONE FORM GEN -->
+  <configure zcml:condition="installed Products.PloneFormGen">
+    <monkey:patch
+      description="Patch FormFolder._getFieldObjects"
+      class="Products.PloneFormGen.content.form.FormFolder"
+      original="_getFieldObjects"
+      replacement=".patches._getFieldObjects"
+      preserveOriginal="true"
+      order="1100"
+      />
+  </configure>
+
 </configure>
