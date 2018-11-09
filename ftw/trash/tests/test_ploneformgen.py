@@ -1,6 +1,7 @@
 from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testbrowser import browsing
+from ftw.testing.mailing import Mailing
 from ftw.trash.interfaces import ITrashed
 from ftw.trash.tests import FunctionalTestCase
 import transaction
@@ -46,3 +47,23 @@ class TestPloneFormGen(FunctionalTestCase):
         }).submit()
 
         self.assertNotIn('This field is required.', browser.css('.fieldErrorBox').text)
+
+    @browsing
+    def test_ploneformgen_adapters_dont_run(self, browser):
+        # Set Missing Property, so mailing wont fail
+        self.portal._updateProperty('email_from_address', 'foo@bar.ch')
+
+        Mailing(self.layer['portal']).set_up()
+
+        form_folder = create(Builder('FormFolder'))
+        form_folder.manage_delObjects(['mailer'])
+        transaction.commit()
+
+        browser.login().visit(form_folder)
+        browser.find_form_by_field('Subject').fill({
+            'Your E-Mail Address': 'foo@bar.ch',
+            'Subject': 'Foo',
+            'Comments': 'Bar'
+        }).submit()
+
+        self.assertFalse(Mailing(self.portal).has_messages())

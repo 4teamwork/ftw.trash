@@ -56,3 +56,14 @@ def searchResults(self, REQUEST=None, **kw):
 def _getFieldObjects(self, *args, **kwargs):
     return filter(lambda obj: not ITrashed.providedBy(obj),
                   self._old__getFieldObjects(*args, **kwargs))
+
+
+def getRawActionAdapter(self, *args, **kwargs):
+    adapter_ids = self._old_getRawActionAdapter(*args, **kwargs)
+    adapter_result = []
+
+    for adapter_id in adapter_ids:
+        if not ITrashed.providedBy(self.get(adapter_id)):
+            adapter_result.append(adapter_id)
+
+    return tuple(adapter_result)
