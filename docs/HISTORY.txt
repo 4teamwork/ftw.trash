@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.2.1 (unreleased)
+1.2.1 (2018-11-13)
 ------------------
 
 - Patch `Products.PloneFormGen` to make it aware of trashed objects [Nachtalb]
