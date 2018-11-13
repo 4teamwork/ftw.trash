@@ -9,6 +9,7 @@ tests_require = [
     'ftw.testing',
     'plone.app.testing',
     'plone.testing',
+    'Products.PloneFormGen < 1.8.0a',
 ]
 
 extras_require = {

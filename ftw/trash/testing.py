@@ -23,10 +23,12 @@ class TrashLayer(PloneSandboxLayer):
             context=configurationContext)
 
         z2.installProduct(app, 'ftw.trash')
+        z2.installProduct(app, 'Products.PloneFormGen')
 
     def setUpPloneSite(self, portal):
         applyProfile(portal, 'ftw.trash:default')
         applyProfile(portal, 'ftw.trash.tests:dxtests')
+        applyProfile(portal, 'Products.PloneFormGen:default')
 
 
 TRASH_FIXTURE = TrashLayer()
