@@ -5,6 +5,7 @@ from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import plone
 from ftw.testbrowser.pages import statusmessages
 from ftw.testing import freeze
+from ftw.testing import IS_PLONE_5
 from ftw.trash.interfaces import IRestorable
 from ftw.trash.interfaces import ITrashed
 from ftw.trash.tests import duplicate_with_dexterity
@@ -91,10 +92,11 @@ class TestTrashView(FunctionalTestCase):
     @browsing
     def test_restore_redirects_to_view_for_files(self, browser):
         self.grant('Site Administrator')
-        Trasher(create(Builder('file'))).trash()
+        doc = create(Builder('file').with_dummy_content())
+        Trasher(doc).trash()
         transaction.commit()
         browser.login().open(view='trash').click_on('Restore')
-        self.assertEquals('http://nohost/plone/file/view', browser.url)
+        self.assertEquals('http://nohost/plone/{}/view'.format(doc.getId()), browser.url)
 
     @browsing
     def test_error_message_when_restore_not_allowed(self, browser):
@@ -214,7 +216,7 @@ class TestTrashView(FunctionalTestCase):
 
     @property
     def type_label(self):
-        if self.is_dexterity:
+        if self.is_dexterity and not IS_PLONE_5:
             return 'dxfolder'
         else:
             return 'Folder'

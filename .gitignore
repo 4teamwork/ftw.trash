@@ -3,6 +3,7 @@
 /*.egg-info
 /.installed.cfg
 /.mr.developer.cfg
+/README.html
 /bin/
 /build/
 /buildout.cfg
@@ -10,8 +11,8 @@
 /develop-eggs/
 /dist/
 /eggs/
+/include/
+/lib/
 /parts/
 /src/
 /var/
-/.nightly_password
-/README.html

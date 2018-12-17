@@ -1,7 +1,8 @@
 from ftw.builder.testing import BUILDER_LAYER
-from ftw.testing.layer import COMPONENT_REGISTRY_ISOLATION
 from ftw.builder.testing import functional_session_factory
 from ftw.builder.testing import set_builder_session_factory
+from ftw.testing import IS_PLONE_5
+from ftw.testing.layer import COMPONENT_REGISTRY_ISOLATION
 from plone.app.testing import applyProfile
 from plone.app.testing import FunctionalTesting
 from plone.app.testing import PloneSandboxLayer
@@ -29,6 +30,9 @@ class TrashLayer(PloneSandboxLayer):
         applyProfile(portal, 'ftw.trash:default')
         applyProfile(portal, 'ftw.trash.tests:dxtests')
         applyProfile(portal, 'Products.PloneFormGen:default')
+
+        if IS_PLONE_5:
+            applyProfile(portal, 'plone.app.contenttypes:default')
 
 
 TRASH_FIXTURE = TrashLayer()
@@ -62,6 +66,9 @@ class TrashNotInstalledLayer(PloneSandboxLayer):
     def setUpPloneSite(self, portal):
         applyProfile(portal, 'ftw.trash.tests:dxtests')
         applyProfile(portal, 'collective.deletepermission:default')
+
+        if IS_PLONE_5:
+            applyProfile(portal, 'plone.app.contenttypes:default')
 
 
 TRASH_NOT_INSTALLED_FUNCTIONAL = FunctionalTesting(
