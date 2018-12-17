@@ -1,9 +1,12 @@
 from ftw.builder import Builder
 from ftw.builder import create
 from ftw.testbrowser import browsing
+from ftw.testing import IS_PLONE_5
 from ftw.testing.mailing import Mailing
 from ftw.trash.interfaces import ITrashed
 from ftw.trash.tests import FunctionalTestCase
+from plone.registry.interfaces import IRegistry
+from zope.component import getUtility
 import transaction
 
 
@@ -13,7 +16,13 @@ class TestPloneFormGen(FunctionalTestCase):
         self.grant('Manager')
 
         # Set Missing Property, so mailing wont fail
-        self.portal._updateProperty('email_from_address', 'foo@bar.ch')
+        if IS_PLONE_5:
+            from Products.CMFPlone.interfaces import IMailSchema
+            registry = getUtility(IRegistry)
+            mail_settings = registry.forInterface(IMailSchema, prefix='plone')
+            mail_settings.email_from_address = 'foo@bar.ch'
+        else:
+            self.portal._updateProperty('email_from_address', 'foo@bar.ch')
 
     @browsing
     def test_ploneformgen_removes_trashed_fields(self, browser):
@@ -50,9 +59,6 @@ class TestPloneFormGen(FunctionalTestCase):
 
     @browsing
     def test_ploneformgen_adapters_dont_run(self, browser):
-        # Set Missing Property, so mailing wont fail
-        self.portal._updateProperty('email_from_address', 'foo@bar.ch')
-
         Mailing(self.layer['portal']).set_up()
 
         form_folder = create(Builder('FormFolder'))

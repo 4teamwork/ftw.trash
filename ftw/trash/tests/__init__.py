@@ -3,6 +3,7 @@ from AccessControl.SecurityManagement import setSecurityManager
 from contextlib import contextmanager
 from DateTime import DateTime
 from ftw.builder import builder_registry
+from ftw.testing import IS_PLONE_5
 from ftw.trash.interfaces import IRestorable
 from ftw.trash.interfaces import ITrashed
 from ftw.trash.testing import TRASH_FUNCTIONAL
@@ -42,6 +43,7 @@ class FunctionalTestCase(TestCase):
     def get_catalog_indexdata(self, obj):
         """Return the catalog index data for an object as dict.
         """
+        self.maybe_process_indexing_queue()
         catalog = getToolByName(self.portal, 'portal_catalog')
         rid = catalog.getrid('/'.join(obj.getPhysicalPath()))
         return catalog.getIndexDataForRID(rid)
@@ -49,6 +51,7 @@ class FunctionalTestCase(TestCase):
     def get_catalog_metadata(self, obj):
         """Return the catalog metadata for an object as dict.
         """
+        self.maybe_process_indexing_queue()
         catalog = getToolByName(self.portal, 'portal_catalog')
         rid = catalog.getrid('/'.join(obj.getPhysicalPath()))
         return catalog.getMetadataForRID(rid)
@@ -73,7 +76,14 @@ class FunctionalTestCase(TestCase):
 
     @property
     def is_dexterity(self):
-        return False
+        return IS_PLONE_5
+
+    def maybe_process_indexing_queue(self):
+        if not IS_PLONE_5:
+            return
+
+        from Products.CMFCore.indexing import processQueue
+        processQueue()
 
 
 def duplicate_with_dexterity(klass):
@@ -88,6 +98,12 @@ def duplicate_with_dexterity(klass):
     So if you use this decorator, be aware, that only "Builder('folder')" is replaced
     with dexterity, all other builders and other code does not change.
     """
+
+    if IS_PLONE_5:
+        # The default types (Folder etc.) in Plone 5 are already Dexterity.
+        # So we do not test Archetypes under Plone 5 anymore, thus we do not
+        # need to duplicate the tests.
+        return klass
 
     class DexterityTestSuite(klass):
         def setUp(self):
