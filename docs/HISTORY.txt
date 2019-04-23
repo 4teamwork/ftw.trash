@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.3.1 (unreleased)
+1.3.1 (2019-04-23)
 ------------------
 
 - Clean trash, even if there is not enough permission to delete the actual item. [mathias.leimgruber]
