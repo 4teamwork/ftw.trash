@@ -50,9 +50,10 @@ setup(
     install_requires=[
         'Plone',
         'collective.deletepermission',
-        'setuptools',
         'ftw.profilehook',
         'ftw.upgrade',
+        'plone.api',
+        'setuptools',
     ],
 
     tests_require=tests_require,

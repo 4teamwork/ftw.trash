@@ -214,6 +214,23 @@ class TestTrashView(FunctionalTestCase):
         browser.click_on('Clean trash').click_on('Delete')
         self.assertNotIn('parent', self.portal.objectIds())
 
+    @browsing
+    def test_empty_trash_event_if_user_has_insufficient_permissions_on_the_item(self, browser):
+        self.grant('Site Administrator')
+
+        folder = create(Builder('folder').within(create(Builder('folder'))))
+        parent = folder.aq_parent
+        folder_id = folder.getId()
+
+        parent.manage_delObjects([folder_id])
+        folder.manage_permission('Delete portal content', roles=['Manager'], acquire=False)
+        transaction.commit()
+
+        browser.login().open().click_on('Trash')
+        browser.click_on('Clean trash').click_on('Delete')
+
+        self.assertNotIn(folder_id, parent)
+
     @property
     def type_label(self):
         if self.is_dexterity and not IS_PLONE_5:

@@ -8,6 +8,7 @@ from ftw.trash.interfaces import ITrashed
 from ftw.trash.trasher import Trasher
 from ftw.trash.utils import filter_children_in_paths
 from itertools import imap
+from plone import api
 from plone.protect import CheckAuthenticator
 from plone.protect import protect
 from Products.CMFCore.utils import getToolByName
@@ -98,14 +99,18 @@ class TrashView(BrowserView):
 
             paths_to_delete = filter_children_in_paths(
                 [brain.getPath() for brain in catalog(query)])
-            for path in paths_to_delete:
-                obj = self.context.restrictedTraverse(path)
-                got_path = '/'.join(obj.getPhysicalPath())
-                if got_path != path:
-                    raise ValueError('Unexpectly found path {!r} when looking for {!r}'.format(
-                        got_path, path))
 
-                aq_parent(aq_inner(obj)).manage_immediatelyDeleteObjects([obj.getId()])
+            # The user maybe able to clean the trash, but depending on the workflow the user may not have
+            # delete permission in the given context
+            with api.env.adopt_roles(['Manager']):
+                for path in paths_to_delete:
+                    obj = self.context.restrictedTraverse(path)
+                    got_path = '/'.join(obj.getPhysicalPath())
+                    if got_path != path:
+                        raise ValueError('Unexpectly found path {!r} when looking for {!r}'.format(
+                            got_path, path))
+
+                    aq_parent(aq_inner(obj)).manage_immediatelyDeleteObjects([obj.getId()])
 
             return self.request.response.redirect(self.context.absolute_url() + '/trash')
 
