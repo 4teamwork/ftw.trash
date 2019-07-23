@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-08-10 09:03+0000\n"
+"POT-Creation-Date: 2019-07-23 16:30+0000\n"
 "PO-Revision-Date: 2018-07-04 20:40+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,6 +11,10 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0\n"
 "Preferred-Encodings: utf-8 latin1\n"
 
+#: ./ftw/trash/browser/templates/trash.pt:39
+msgid "Are you sure that you want to delete this content and its children permanently?"
+msgstr "Sind Sie sicher, dass sie diesen Inhalt und dessen Unterinhalte unwiederruflich löschen wollen?"
+
 #: ./ftw/trash/browser/templates/clean-trash-confirmation.pt:12
 msgid "Are you sure you want to permanently delete all objects in the trash?"
 msgstr "Sind Sie sicher, dass sie alle Inhalte im Papierkorb unwiederruflich löschen wollen?"
@@ -19,7 +23,7 @@ msgstr "Sind Sie sicher, dass sie alle Inhalte im Papierkorb unwiederruflich lö
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: ./ftw/trash/browser/templates/trash.pt:47
+#: ./ftw/trash/browser/templates/trash.pt:56
 msgid "Clean trash"
 msgstr "Papierkorb leeren"
 
@@ -30,6 +34,10 @@ msgstr "Beim Leeren des Papierkorbs werden alle Inhalte des Papierkorbs und dere
 #: ./ftw/trash/browser/templates/clean-trash-confirmation.pt:23
 msgid "Delete"
 msgstr "Löschen"
+
+#: ./ftw/trash/browser/templates/trash.pt:46
+msgid "Delete permanently"
+msgstr "Definitiv löschen"
 
 #: ./ftw/trash/browser/templates/trash.pt:37
 msgid "Restore"
@@ -48,18 +56,23 @@ msgstr "ftw.trash"
 msgid "ftw.trash: uninstall"
 msgstr "ftw.trash: deinstallieren"
 
+#. Default: "The content \"${title}\" has ben parmanently deleted."
+#: ./ftw/trash/browser/trash.py:101
+msgid "statusmessage_content_permanently_deleted"
+msgstr "Der Inhalt \"${title}\" wurde definitiv gelöscht."
+
 #. Default: "\"${title}\" cannot be restored because the parent container \"${parent}\" is also trashed. You need to restore the parent first."
-#: ./ftw/trash/browser/trash.py:48
+#: ./ftw/trash/browser/trash.py:50
 msgid "statusmessage_content_restore_error_parent_trashed"
 msgstr "\"${title}\" kann nicht wiederhergestellt werden, solange der übergeordnete Inhalt \"${parent}\" auch im Papierkorb ist. Der übergeordnete Inhalt muss zuerst wiederhergestellt werden."
 
 #. Default: "You are not allowed to restore \"${title}\". You may need to change the workflow state of the parent content."
-#: ./ftw/trash/browser/trash.py:59
+#: ./ftw/trash/browser/trash.py:62
 msgid "statusmessage_content_restore_not_allowed"
 msgstr "Sie dürfen \"${title}\" nicht wiederherstellen. Möglicherweise können Sie den Status des übergeordneten Inhalts verändern."
 
 #. Default: "The content \"${title}\" has been restored."
-#: ./ftw/trash/browser/trash.py:68
+#: ./ftw/trash/browser/trash.py:71
 msgid "statusmessage_content_restored"
 msgstr "Der Inhalt \"${title}\" wurde wieder hergestellt."
 

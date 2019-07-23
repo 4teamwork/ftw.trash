@@ -231,6 +231,33 @@ class TestTrashView(FunctionalTestCase):
 
         self.assertNotIn(folder_id, parent)
 
+    @browsing
+    def test_delete_single_trashed_object(self, browser):
+        self.grant('Site Administrator')
+
+        foo = create(Builder('folder').titled(u'Foo'))
+        create(Builder('folder').titled(u'Foo1').within(foo))
+        bar = create(Builder('folder').titled(u'Bar'))
+        create(Builder('folder').titled(u'Bar1').within(bar))
+
+        self.assertIn(foo.getId(), self.portal)
+        self.assertIn(bar.getId(), self.portal)
+
+        self.portal.manage_delObjects([foo.getId(), bar.getId()])
+        transaction.commit()
+
+        browser.login().open().click_on('Trash')
+        self.assertEqual(['Bar', 'Foo'], browser.css('.trash-table strong').text)
+
+        foo_row = browser.css('strong:contains(Foo)').first.parent('tr')
+        foo_row.find('Delete permanently').click()
+
+        self.assertEqual(['Bar'], browser.css('.trash-table strong').text)
+        transaction.begin()
+
+        self.assertNotIn(foo.getId(), self.portal)
+        self.assertIn(bar.getId(), self.portal)
+
     @property
     def type_label(self):
         if self.is_dexterity and not IS_PLONE_5:
