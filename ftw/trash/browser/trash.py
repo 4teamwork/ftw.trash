@@ -76,6 +76,35 @@ class TrashView(BrowserView):
         target_url = obj.restrictedTraverse('@@plone_context_state').view_url()
         self.request.response.redirect(target_url)
 
+    @postonly
+    @protect(CheckAuthenticator)
+    def delete_permanently(self, REQUEST, uuid):
+        """Permanently delete a trashed item by uuid.
+        """
+        catalog = getToolByName(self.context, 'portal_catalog')
+        brains = catalog({'UID': uuid, 'trashed': True})
+        if len(brains) != 1:
+            raise BadRequest()
+
+        # The user maybe able to clean the trash, but depending on the workflow the user may not have
+        # delete permission in the given context
+        with api.env.adopt_roles(['Manager']):
+            path = brains[0].getPath()
+            obj = self.context.restrictedTraverse(path)
+            got_path = '/'.join(obj.getPhysicalPath())
+            if got_path != path:
+                raise ValueError('Unexpectly found path {!r} when looking for {!r}'.format(got_path, path))
+
+            aq_parent(aq_inner(obj)).manage_immediatelyDeleteObjects([obj.getId()])
+
+            IStatusMessage(self.request).addStatusMessage(
+                _(u'statusmessage_content_permanently_deleted',
+                  default=u'The content "${title}" has ben parmanently deleted.',
+                  mapping={u'title': safe_unicode(obj.Title())}),
+                type='info')
+
+        return self.request.response.redirect(self.context.absolute_url() + '/trash')
+
     def confirm_clean_trash(self):
         """Show confirmation dialog for cleaning the trash.
         """

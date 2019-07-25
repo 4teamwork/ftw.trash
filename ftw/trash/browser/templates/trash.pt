@@ -36,6 +36,15 @@
                 <input type="hidden" name="uuid" tal:attributes="value item/uuid" />
                 <input type="submit" value="Restore" i18n:attributes="value" />
               </form>
+              <form method="POST"
+                    onsubmit="return confirm(this.getAttribute('data_confirm_message'));"
+                    tal:attributes="action string:${request/URL}/delete_permanently"
+                    data_confirm_message="Are you sure that you want to delete this content and its children permanently?"
+                    i18n:attributes="data_confirm_message">
+                <span tal:replace="structure context/@@authenticator/authenticator"/>
+                <input type="hidden" name="uuid" tal:attributes="value item/uuid" />
+                <input type="submit" value="Delete permanently" i18n:attributes="value" />
+              </form>
             </td>
           </tr>
 

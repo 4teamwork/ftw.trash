@@ -9,6 +9,7 @@
       class=".trash.TrashView"
       permission="ftw.trash.RestoreTrashedContent"
       allowed_attributes="restore
+                          delete_permanently
                           confirm_clean_trash
                           clean_trash"
       />
