@@ -102,6 +102,8 @@ Internals
   Restoring children without their deleted parents cannot work since the parent is missing.
 - Trashed content is not moved.
 - The catalog's ``searchResults`` method is patched so that it filters trashed objects by default.
+- The ``contentItems`` method is patched to exclude trashed content.
+  It is used for ``listFolderContents`` and ``getFolderContents``.
 - Trashed content is prevented from beeing published / accessible through the browser unless
   the user has the ``Manager`` role.
 - For restoring content, the permissions ``Restore trashed content`` and ``Add portal content``

@@ -5,7 +5,7 @@ Changelog
 1.4.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Let ``contentItems``, ``listFolderContents`` and ``getFolderContents`` no longer return trashed content. [jone]
 
 
 1.4.1 (2019-07-25)

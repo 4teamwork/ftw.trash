@@ -7,6 +7,17 @@
   <include package="collective.deletepermission" />
   <include package="collective.monkeypatcher" />
 
+  <!-- CMFCore -->
+  <monkey:patch
+      description="Patch contentItems"
+      class="Products.CMFCore.PortalFolder.PortalFolderBase"
+      original="contentItems"
+      replacement="ftw.trash.patches.contentItems"
+      preserveOriginal="true"
+      preservedoc="true"
+      order="1100"
+      />
+
   <!-- PLONE SITE ROOT -->
   <monkey:patch
       description="Patch site root manage_trashObjects"

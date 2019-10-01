@@ -5,6 +5,12 @@ from ftw.trash.utils import is_trash_profile_installed
 from ftw.trash.utils import within_link_integrity_check
 
 
+def contentItems(self, filter=None):
+    items = self._old_contentItems(filter=filter)
+    items = [item for item in items if not ITrashed.providedBy(item[1])]
+    return items
+
+
 def manage_trashObjects(self, ids=None, REQUEST=None):
     """Marks objects as trashed.
     """
