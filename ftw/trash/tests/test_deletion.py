@@ -88,9 +88,10 @@ class TestDeletion(FunctionalTestCase):
             # Our test user with role Manager is not allowed to delete the child because
             # we have limited the permissions to "Contributor".
             parent.manage_delObjects([child.getId()])
-            self.assertIn(child.getId(), parent.objectIds())
-            self.assert_provides(parent, None)
-            self.assert_provides(child, None)
+
+        self.assertIn(child.getId(), parent.objectIds())
+        self.assert_provides(parent, None)
+        self.assert_provides(child, None)
 
         user = create(Builder('user').with_roles('Contributor', on=parent))
         with self.user(user):
