@@ -28,6 +28,7 @@ class Trasher(object):
         self.context = context
 
     def trash(self):
+        protect_del_objects(aq_parent(aq_inner(self.context)), self.context.getId())
         notify(BeforeObjectTrashedEvent(self.context))
         self._trash_recursive(self.context, is_root=True)
         notify(ObjectTrashedEvent(self.context))
@@ -55,7 +56,6 @@ class Trasher(object):
         notify(ObjectRestoredEvent(self.context))
 
     def _trash_recursive(self, obj, is_root=False):
-        protect_del_objects(aq_parent(aq_inner(obj)), obj.getId())
         alsoProvides(obj, ITrashed)
         if is_root:
             alsoProvides(obj, IRestorable)
