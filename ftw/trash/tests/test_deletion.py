@@ -88,9 +88,10 @@ class TestDeletion(FunctionalTestCase):
             # Our test user with role Manager is not allowed to delete the child because
             # we have limited the permissions to "Contributor".
             parent.manage_delObjects([child.getId()])
-            self.assertIn(child.getId(), parent.objectIds())
-            self.assert_provides(parent, None)
-            self.assert_provides(child, None)
+
+        self.assertIn(child.getId(), parent.objectIds())
+        self.assert_provides(parent, None)
+        self.assert_provides(child, None)
 
         user = create(Builder('user').with_roles('Contributor', on=parent))
         with self.user(user):
@@ -98,6 +99,36 @@ class TestDeletion(FunctionalTestCase):
             self.assertIn(child.getId(), parent.objectIds())
             self.assert_provides(parent, None)
             self.assert_provides(child, IRestorable, ITrashed)
+
+    def test_manage_delObjects_does_not_check_permissions_recursively(self):
+        """The standard behavior of Plone is that it only checks the delete permission on the
+        content selected for deletion by the user. The children of the selected content is
+        not checked for the delete permission.
+        ftw.trash should not change the default behavior of Plone regarding security checks.
+        """
+        self.grant('Manager')
+        container = create(Builder('folder'))
+        parent = create(Builder('folder').within(container))
+        child = create(Builder('folder').within(parent))
+        child.manage_permission('Delete portal content', roles=[], acquire=False)
+        self.assertIn(child.getId(), parent.objectIds())
+        self.assert_provides(container, None)
+        self.assert_provides(parent, None)
+        self.assert_provides(child, None)
+
+        with self.assertRaises(Unauthorized):
+            # The child should not be deletable, as nobody has the "Delete portal content" permission.
+            parent.manage_delObjects([child.getId()])
+
+        self.assert_provides(container, None)
+        self.assert_provides(parent, None)
+        self.assert_provides(child, None)
+
+        # The parent is deletable and also deletes the child implicitly.
+        container.manage_delObjects([parent.getId()])
+        self.assert_provides(container, None)
+        self.assert_provides(parent, IRestorable, ITrashed)
+        self.assert_provides(child, ITrashed)
 
     def test_confirmation_dialog_link_integrity_checker_should_actually_delete_the_object(self):
         """The confirmation dialog deletes the object within a later rolled-back savepoint
