@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import isLinked
 from zope.component.hooks import getSite
@@ -8,6 +9,20 @@ import os
 def is_trash_profile_installed():
     portal_setup = getToolByName(getSite(), 'portal_setup')
     return portal_setup.getLastVersionForProfile('ftw.trash:default') != 'unknown'
+
+
+def is_trash_disabled():
+    return os.environ.get('DISABLE_FTW_TRASH', None) == 'true'
+
+
+@contextmanager
+def temporary_disable_trash():
+
+    os.environ['DISABLE_FTW_TRASH'] = 'true'
+    try:
+        yield
+    finally:
+        del os.environ['DISABLE_FTW_TRASH']
 
 
 def within_link_integrity_check():

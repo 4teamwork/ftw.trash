@@ -1,6 +1,7 @@
 from ftw.trash.interfaces import ITrashed
 from ftw.trash.trasher import Trasher
 from ftw.trash.utils import called_from_ZMI
+from ftw.trash.utils import is_trash_disabled
 from ftw.trash.utils import is_trash_profile_installed
 from ftw.trash.utils import within_link_integrity_check
 
@@ -25,7 +26,8 @@ def manage_trashObjects(self, ids=None, REQUEST=None):
 def manage_delObjects(self, ids=None, REQUEST=None):
     if is_trash_profile_installed() and \
        not within_link_integrity_check() and \
-       not called_from_ZMI(REQUEST):
+       not called_from_ZMI(REQUEST) and \
+       not is_trash_disabled():
         return self.manage_trashObjects(ids=ids, REQUEST=REQUEST)
     else:
         return self.manage_immediatelyDeleteObjects(ids=ids, REQUEST=REQUEST)
