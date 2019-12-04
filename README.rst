@@ -60,6 +60,21 @@ The patches are applied on the site root, on DX- and on AT-folders when ``ftw.tr
 is installed in the path.
 For the methods to work properly, the Generic Setup profile must be installed as well.
 
+
+Temporary disable trash feature
+--------------------------------
+
+You can either set the env variable ``DISABLE_FTW_TRASH`` manually, or use the provided context manager.
+
+.. code::python
+
+    from ftw.trash.utils import temporary_disable_trash
+
+    with temporary_disable_trash():
+        self.portal.manage_delObjects([container1.getId()])
+
+
+
 Manipulate condition for restoring
 ==================================
 

@@ -8,6 +8,7 @@ from ftw.trash.interfaces import IRestorable
 from ftw.trash.interfaces import ITrashed
 from ftw.trash.tests import duplicate_with_dexterity
 from ftw.trash.tests import FunctionalTestCase
+from ftw.trash.utils import temporary_disable_trash
 from plone.uuid.interfaces import IUUID
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import isLinked
@@ -162,3 +163,17 @@ class TestDeletion(FunctionalTestCase):
         self.assertIn(folder_id, parent.objectIds())
         parent.manage_immediatelyDeleteObjects(folder_id)
         self.assertNotIn(folder_id, parent.objectIds())
+
+    def test_trash_immediately_if_env_var_is_there(self):
+        self.grant('Manager')
+
+        container1 = create(Builder('folder'))
+        container_id = container1.getId()
+
+        with temporary_disable_trash():
+            self.portal.manage_delObjects([container1.getId()])
+            self.assertNotIn(container_id, self.portal.objectIds())
+
+        container2 = create(Builder('folder'))
+        self.portal.manage_delObjects([container2.getId()])
+        self.assert_provides(container2, IRestorable, ITrashed)
