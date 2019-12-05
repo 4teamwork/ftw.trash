@@ -29,7 +29,7 @@ def manage_delObjects(self, ids=None, REQUEST=None):
        not within_link_integrity_check() and \
        not called_from_ZMI(REQUEST) and \
        not is_trash_disabled() and \
-       not is_migrating_plone_site(self.REQUEST):
+       not is_migrating_plone_site(self):
         return self.manage_trashObjects(ids=ids, REQUEST=REQUEST)
     else:
         return self.manage_immediatelyDeleteObjects(ids=ids, REQUEST=REQUEST)

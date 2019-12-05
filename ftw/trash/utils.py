@@ -15,11 +15,17 @@ def is_trash_disabled():
     return os.environ.get('DISABLE_FTW_TRASH', None) == 'true'
 
 
-def is_migrating_plone_site(request):
+def is_migrating_plone_site(obj):
     """Detects whether we are in a request which migrates Plone to a new version.
     In this case we want to disable the trash, because it may cause problems
     e.g. when deleting tools.
     """
+    # obj may not be acquisition wrapped and may not have a request.
+    # Fall back to Plone site.
+    request = getattr(obj, 'REQUEST', None)
+    if not request:
+        request = getSite().REQUEST
+
     return request.steps and request.steps[-1] in (
         '@@plone-upgrade',  # ZMI TTW
         'plone_upgrade',  # ftw.upgrade
