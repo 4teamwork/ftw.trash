@@ -16,7 +16,7 @@ def is_trash_disabled():
 
 
 def is_migrating_plone_site(request):
-    """Detects whether we are in a request which migrats Plone to a new version.
+    """Detects whether we are in a request which migrates Plone to a new version.
     In this case we want to disable the trash, because it may cause problems
     e.g. when deleting tools.
     """
