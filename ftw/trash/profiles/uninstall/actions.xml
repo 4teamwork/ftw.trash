@@ -4,7 +4,7 @@
 
   <object name="user" meta_type="CMF Action Category">
 
-    <object name="user_management" remove="True" />
+    <object name="trash" remove="True" />
 
   </object>
 </object>
