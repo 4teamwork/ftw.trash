@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.7.2 (unreleased)
+1.7.2 (2019-12-09)
 ------------------
 
 - Rename trash user action from "user_management" to "trash".
