@@ -5,7 +5,8 @@ Changelog
 1.7.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Rename trash user action from "user_management" to "trash".
+  If you use ``ftw.usermanagement`` you should reinstall it. [jone]
 
 
 1.7.1 (2019-12-05)
