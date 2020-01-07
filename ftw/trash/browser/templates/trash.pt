@@ -6,6 +6,14 @@
       metal:use-macro="context/main_template/macros/master"
       i18n:domain="ftw.trash">
 
+  <metal:block fill-slot="style_slot">
+    <style>
+      table.listing td div {
+        word-break: break-word;
+      }
+    </style>
+  </metal:block>
+
   <div metal:fill-slot="main">
     <metal:main-macro define-macro="main">
 
