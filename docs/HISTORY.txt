@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.7.3 (unreleased)
+1.7.3 (2020-01-07)
 ------------------
 
 - Stop trash items with long paths from hiding action buttons on the trash view. [djowett-ftw]
