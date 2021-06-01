@@ -50,3 +50,18 @@ class TestTraversing(FunctionalTestCase):
         browser.open(folder)
 
         statusmessages.assert_message('The content "Fancy Folder" is trashed.')
+
+    @browsing
+    def test_trashed_download_view_not_accessible(self, browser):
+        self.grant('Contributor')
+        folder = create(Builder('folder'))
+        file_ = create(Builder('file').within(folder).with_dummy_content())
+
+        browser.login()
+        browser.open(file_.absolute_url() + '/@@download/file/test.txt')
+
+        Trasher(folder).trash()
+        transaction.commit()
+
+        with browser.expect_http_error(404):
+            browser.open(file_.absolute_url() + '/@@download/file/test.txt')
