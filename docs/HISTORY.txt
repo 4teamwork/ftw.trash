@@ -11,7 +11,7 @@ Changelog
 1.7.4 (2021-06-01)
 ------------------
 
-- Only sheck IItem based objects for trashed interfaces. [mathias.leimgruber]
+- Only check IItem based objects for trashed interfaces. [mathias.leimgruber]
 
 
 1.7.3 (2020-01-07)
