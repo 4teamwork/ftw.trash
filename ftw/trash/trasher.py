@@ -1,23 +1,18 @@
 from AccessControl import getSecurityManager
-from Acquisition import aq_inner
-from Acquisition import aq_parent
+from Acquisition import aq_inner, aq_parent
 from collective.deletepermission.del_object import protect_del_objects
-from ftw.trash.events import BeforeObjectRestoredEvent
-from ftw.trash.events import BeforeObjectTrashedEvent
-from ftw.trash.events import ObjectRestoredEvent
-from ftw.trash.events import ObjectTrashedEvent
+from ftw.trash.events import (BeforeObjectRestoredEvent,
+                              BeforeObjectTrashedEvent, ObjectRestoredEvent,
+                              ObjectTrashedEvent)
 from ftw.trash.exceptions import NotRestorable
-from ftw.trash.interfaces import IIsRestoreAllowedAdapter
-from ftw.trash.interfaces import IRestorable
-from ftw.trash.interfaces import ITrashed
+from ftw.trash.interfaces import (IIsRestoreAllowedAdapter, IRestorable,
+                                  ITrashed)
+from six.moves import map
 from zExceptions import Unauthorized
-from zope.component import adapter
-from zope.component import getMultiAdapter
+from zope.component import adapter, getMultiAdapter
 from zope.event import notify
-from zope.interface import alsoProvides
-from zope.interface import implementer
-from zope.interface import Interface
-from zope.interface import noLongerProvides
+from zope.interface import (Interface, alsoProvides, implementer,
+                            noLongerProvides)
 
 
 class Trasher(object):
@@ -62,7 +57,7 @@ class Trasher(object):
 
         obj.setModificationDate()
         obj.reindexObject(idxs=['object_provides', 'trashed', 'modified'])
-        map(self._trash_recursive, obj.objectValues())
+        list(map(self._trash_recursive, obj.objectValues()))
 
     def _restore_recursive(self, obj, is_root=False):
         if not is_root and IRestorable.providedBy(obj):
@@ -73,7 +68,7 @@ class Trasher(object):
         noLongerProvides(obj, IRestorable)
         obj.setModificationDate()
         obj.reindexObject(idxs=['object_provides', 'trashed', 'modified'])
-        map(self._restore_recursive, obj.objectValues())
+        list(map(self._restore_recursive, obj.objectValues()))
 
 
 @implementer(IIsRestoreAllowedAdapter)

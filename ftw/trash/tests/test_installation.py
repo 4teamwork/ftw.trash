@@ -1,12 +1,9 @@
-from Acquisition import aq_inner
-from Acquisition import aq_parent
-from ftw.builder import Builder
-from ftw.builder import create
+from Acquisition import aq_inner, aq_parent
+from ftw.builder import Builder, create
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import plone
 from ftw.trash.testing import TRASH_NOT_INSTALLED_FUNCTIONAL
-from ftw.trash.tests import duplicate_with_dexterity
-from ftw.trash.tests import FunctionalTestCase
+from ftw.trash.tests import FunctionalTestCase, duplicate_with_dexterity
 from Products.CMFCore.utils import getToolByName
 from zExceptions import Unauthorized
 

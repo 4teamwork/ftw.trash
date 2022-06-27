@@ -1,14 +1,15 @@
 from AccessControl import getSecurityManager
+from ftw.trash import _
+from ftw.trash.interfaces import ITrashed
 from OFS.interfaces import IItem
 from Products.CMFPlone.utils import safe_unicode
 from Products.statusmessages.interfaces import IStatusMessage
-from ftw.trash import _
-from ftw.trash.interfaces import ITrashed
+from six.moves import filter
 from zExceptions import NotFound
 
 
 def prevent_accessing_trashed_content_after_traversal(event):
-    context = filter(lambda item: IItem.providedBy(item), event.request.PARENTS)[0]
+    context = [item for item in event.request.PARENTS if IItem.providedBy(item)][0]
 
     if not ITrashed.providedBy(context):
         return

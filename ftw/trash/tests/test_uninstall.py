@@ -1,6 +1,7 @@
-from ftw.testing.genericsetup import GenericSetupUninstallMixin
-from ftw.testing.genericsetup import apply_generic_setup_layer
 from unittest import TestCase
+
+from ftw.testing.genericsetup import (GenericSetupUninstallMixin,
+                                      apply_generic_setup_layer)
 
 
 @apply_generic_setup_layer

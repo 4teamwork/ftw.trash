@@ -1,13 +1,9 @@
-from Acquisition import aq_inner
-from Acquisition import aq_parent
-from ftw.builder import Builder
-from ftw.builder import create
+from Acquisition import aq_inner, aq_parent
+from ftw.builder import Builder, create
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import plone
-from ftw.trash.interfaces import IRestorable
-from ftw.trash.interfaces import ITrashed
-from ftw.trash.tests import duplicate_with_dexterity
-from ftw.trash.tests import FunctionalTestCase
+from ftw.trash.interfaces import IRestorable, ITrashed
+from ftw.trash.tests import FunctionalTestCase, duplicate_with_dexterity
 from ftw.trash.utils import temporary_disable_trash
 from plone.uuid.interfaces import IUUID
 from Products.CMFCore.utils import getToolByName
@@ -143,7 +139,7 @@ class TestDeletion(FunctionalTestCase):
 
         self.grant('Site Administrator')
         target = create(Builder('folder'))
-        # be aware that the page object is always archetypes.
+        # be aware that the page object is always
         create(Builder('page')
                .having(text='<p><a href="resolveuid/{}">folder</a>'.format(IUUID(target))))
 

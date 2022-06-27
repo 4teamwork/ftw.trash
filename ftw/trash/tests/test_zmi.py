@@ -1,5 +1,4 @@
-from ftw.builder import Builder
-from ftw.builder import create
+from ftw.builder import Builder, create
 from ftw.testbrowser import browsing
 from ftw.trash.tests import FunctionalTestCase
 from ftw.trash.trasher import Trasher

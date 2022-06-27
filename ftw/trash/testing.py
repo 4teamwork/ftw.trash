@@ -1,11 +1,9 @@
-from ftw.builder.testing import BUILDER_LAYER
-from ftw.builder.testing import functional_session_factory
-from ftw.builder.testing import set_builder_session_factory
+from ftw.builder.testing import (BUILDER_LAYER, functional_session_factory,
+                                 set_builder_session_factory)
 from ftw.testing import IS_PLONE_5
 from ftw.testing.layer import COMPONENT_REGISTRY_ISOLATION
-from plone.app.testing import applyProfile
-from plone.app.testing import FunctionalTesting
-from plone.app.testing import PloneSandboxLayer
+from plone.app.testing import (FunctionalTesting, PloneSandboxLayer,
+                               applyProfile)
 from plone.testing import z2
 from zope.configuration import xmlconfig
 

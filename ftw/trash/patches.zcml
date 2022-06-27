@@ -74,35 +74,6 @@
         />
   </configure>
 
-  <!-- ARCHETYPES -->
-  <configure zcml:condition="installed Products.Archetypes">
-    <monkey:patch
-        description="Patch AT manage_trashObjects"
-        class="Products.Archetypes.BaseFolder.BaseFolderMixin"
-        original="manage_trashObjects"
-        replacement="ftw.trash.patches.manage_trashObjects"
-        ignoreOriginal="true"
-        />
-
-    <monkey:patch
-        description="Patch AT manage_immediatelyDeleteObjects"
-        class="Products.Archetypes.BaseFolder.BaseFolderMixin"
-        original="manage_immediatelyDeleteObjects"
-        replacement="ftw.trash.patches.manage_immediatelyDeleteObjects"
-        ignoreOriginal="true"
-        />
-
-    <monkey:patch
-        description="Patch AT manage_delObjects"
-        class="Products.Archetypes.BaseFolder.BaseFolderMixin"
-        original="manage_delObjects"
-        replacement="ftw.trash.patches.manage_delObjects"
-        preserveOriginal="true"
-        preservedoc="true"
-        order="1100"
-        />
-  </configure>
-
   <!-- CATALOG -->
   <monkey:patch
       description="Patch catalog.searchResults"

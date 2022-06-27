@@ -1,8 +1,9 @@
+from unittest import TestCase
+
 from ftw.trash.testing import TRASH_NOT_INSTALLED_FUNCTIONAL
 from ftw.trash.tests import FunctionalTestCase
-from ftw.trash.utils import filter_children_in_paths
-from ftw.trash.utils import is_trash_profile_installed
-from unittest import TestCase
+from ftw.trash.utils import (filter_children_in_paths,
+                             is_trash_profile_installed)
 
 
 class TestUtilsWhenInstalled(FunctionalTestCase):

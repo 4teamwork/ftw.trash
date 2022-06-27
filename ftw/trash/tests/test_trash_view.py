@@ -1,17 +1,13 @@
 from datetime import datetime
-from ftw.builder import Builder
-from ftw.builder import create
-from ftw.testbrowser import browsing
-from ftw.testbrowser.pages import plone
-from ftw.testbrowser.pages import statusmessages
-from ftw.testing import freeze
-from ftw.testing import IS_PLONE_5
-from ftw.trash.interfaces import IRestorable
-from ftw.trash.interfaces import ITrashed
-from ftw.trash.tests import duplicate_with_dexterity
-from ftw.trash.tests import FunctionalTestCase
-from ftw.trash.trasher import Trasher
+
 import transaction
+from ftw.builder import Builder, create
+from ftw.testbrowser import browsing
+from ftw.testbrowser.pages import plone, statusmessages
+from ftw.testing import IS_PLONE_5, freeze
+from ftw.trash.interfaces import IRestorable, ITrashed
+from ftw.trash.tests import FunctionalTestCase, duplicate_with_dexterity
+from ftw.trash.trasher import Trasher
 
 
 @duplicate_with_dexterity

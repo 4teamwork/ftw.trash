@@ -1,7 +1,5 @@
-from ftw.builder import Builder
-from ftw.builder import create
-from ftw.trash.tests import duplicate_with_dexterity
-from ftw.trash.tests import FunctionalTestCase
+from ftw.builder import Builder, create
+from ftw.trash.tests import FunctionalTestCase, duplicate_with_dexterity
 from ftw.trash.trasher import Trasher
 from Products.CMFCore.utils import getToolByName
 

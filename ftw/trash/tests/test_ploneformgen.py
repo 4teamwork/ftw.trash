@@ -1,5 +1,5 @@
-from ftw.builder import Builder
-from ftw.builder import create
+import transaction
+from ftw.builder import Builder, create
 from ftw.testbrowser import browsing
 from ftw.testing import IS_PLONE_5
 from ftw.testing.mailing import Mailing
@@ -7,7 +7,6 @@ from ftw.trash.interfaces import ITrashed
 from ftw.trash.tests import FunctionalTestCase
 from plone.registry.interfaces import IRegistry
 from zope.component import getUtility
-import transaction
 
 
 class TestPloneFormGen(FunctionalTestCase):

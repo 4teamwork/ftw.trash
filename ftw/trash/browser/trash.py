@@ -1,23 +1,19 @@
 from AccessControl import getSecurityManager
 from AccessControl.requestmethod import postonly
-from Acquisition import aq_inner
-from Acquisition import aq_parent
+from Acquisition import aq_inner, aq_parent
 from ftw.trash import _
-from ftw.trash.interfaces import IRestorable
-from ftw.trash.interfaces import ITrashed
+from ftw.trash.interfaces import IRestorable, ITrashed
 from ftw.trash.trasher import Trasher
 from ftw.trash.utils import filter_children_in_paths
-from itertools import imap
 from plone import api
-from plone.protect import CheckAuthenticator
-from plone.protect import protect
+from plone.protect import CheckAuthenticator, protect
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.statusmessages.interfaces import IStatusMessage
-from zExceptions import BadRequest
-from zExceptions import Unauthorized
+from six.moves import map
+from zExceptions import BadRequest, Unauthorized
 from zope.component.hooks import getSite
 
 
@@ -155,7 +151,7 @@ class TrashView(BrowserView):
             'sort_order': 'reverse',
             'sort_limit': self.max_amount_of_items}
 
-        return imap(self._brain_to_item, catalog(query)[:self.max_amount_of_items])
+        return map(self._brain_to_item, catalog(query)[:self.max_amount_of_items])
 
     def _brain_to_item(self, brain):
         return {

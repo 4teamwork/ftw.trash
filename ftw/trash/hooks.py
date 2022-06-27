@@ -1,6 +1,6 @@
 import logging
-from Products.CMFCore.utils import getToolByName
 
+from Products.CMFCore.utils import getToolByName
 
 PROFILE_ID = 'profile-ftw.trash:default'
 INDEXES = (('trashed', 'FieldIndex'),)

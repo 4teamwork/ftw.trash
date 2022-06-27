@@ -1,20 +1,18 @@
-from AccessControl.SecurityManagement import getSecurityManager
-from AccessControl.SecurityManagement import setSecurityManager
+import sys
 from contextlib import contextmanager
+from unittest import TestCase
+
+import transaction
+from AccessControl.SecurityManagement import (getSecurityManager,
+                                              setSecurityManager)
 from DateTime import DateTime
 from ftw.builder import builder_registry
 from ftw.testing import IS_PLONE_5
-from ftw.trash.interfaces import IRestorable
-from ftw.trash.interfaces import ITrashed
+from ftw.trash.interfaces import IRestorable, ITrashed
 from ftw.trash.testing import TRASH_FUNCTIONAL
 from ftw.trash.tests.builders import DXFolderBuilder
-from plone.app.testing import login
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
+from plone.app.testing import TEST_USER_ID, login, setRoles
 from Products.CMFCore.utils import getToolByName
-from unittest import TestCase
-import sys
-import transaction
 
 
 class FunctionalTestCase(TestCase):
@@ -70,7 +68,7 @@ class FunctionalTestCase(TestCase):
             '{!r}\'s "modified" index data is wrong'.format(obj))
 
     def assert_provides(self, obj, *expected):
-        expected = set(filter(None, expected))
+        expected = set([_f for _f in expected if _f])
         got = {iface for iface in (IRestorable, ITrashed) if iface.providedBy(obj)}
         self.assertEquals(expected, got, 'Unexpected interfaces provided by {!r}'.format(obj))
 
@@ -89,7 +87,7 @@ class FunctionalTestCase(TestCase):
 def duplicate_with_dexterity(klass):
     """Decorator for duplicating a test suite to be ran against dexterity contents.
 
-    The tests are ran against archetypes by default, meaning that we use the builder
+    The tests are ran against  by default, meaning that we use the builder
     "folder" as AT builder for the FTI "Folder".
     When using the @duplicate_with_dexterity decorator, an additional class is registered
     (postfixed "Dexterity"), where the "folder" builder is changed to a DX builder
@@ -101,7 +99,7 @@ def duplicate_with_dexterity(klass):
 
     if IS_PLONE_5:
         # The default types (Folder etc.) in Plone 5 are already Dexterity.
-        # So we do not test Archetypes under Plone 5 anymore, thus we do not
+        # So we do not test  under Plone 5 anymore, thus we do not
         # need to duplicate the tests.
         return klass
 

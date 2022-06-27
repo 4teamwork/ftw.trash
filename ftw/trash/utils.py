@@ -1,9 +1,10 @@
+import inspect
+import os
 from contextlib import contextmanager
+
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import isLinked
 from zope.component.hooks import getSite
-import inspect
-import os
 
 
 def is_trash_profile_installed():
@@ -51,7 +52,7 @@ def within_link_integrity_check():
         if frame is None:
             return False
 
-        if frame.f_code == isLinked.func_code:
+        if frame.f_code == isLinked.__code__:
             return True
 
 
@@ -68,9 +69,9 @@ def filter_children_in_paths(paths):
     when their parents (or grandparents, etc.) are also included in the list.
     As a side effect, trailing slashes are removed.
     """
-    paths = map(lambda path: os.path.join(path, ''), sorted(paths, reverse=True))
+    paths = [os.path.join(path, '') for path in sorted(paths, reverse=True)]
     for parent in paths[:]:
         for child in paths[:]:
             if parent != child and child.startswith(parent):
                 paths.remove(child)
-    return map(lambda path: path.rstrip('/'), sorted(paths))
+    return [path.rstrip('/') for path in sorted(paths)]

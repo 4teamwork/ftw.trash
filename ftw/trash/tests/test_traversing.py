@@ -1,11 +1,9 @@
-from ftw.builder import Builder
-from ftw.builder import create
+import transaction
+from ftw.builder import Builder, create
 from ftw.testbrowser import browsing
 from ftw.testbrowser.pages import statusmessages
-from ftw.trash.tests import duplicate_with_dexterity
-from ftw.trash.tests import FunctionalTestCase
+from ftw.trash.tests import FunctionalTestCase, duplicate_with_dexterity
 from ftw.trash.trasher import Trasher
-import transaction
 
 
 @duplicate_with_dexterity

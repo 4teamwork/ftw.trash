@@ -1,10 +1,9 @@
+import six
 from ftw.trash.interfaces import ITrashed
 from ftw.trash.trasher import Trasher
-from ftw.trash.utils import called_from_ZMI
-from ftw.trash.utils import is_migrating_plone_site
-from ftw.trash.utils import is_trash_disabled
-from ftw.trash.utils import is_trash_profile_installed
-from ftw.trash.utils import within_link_integrity_check
+from ftw.trash.utils import (called_from_ZMI, is_migrating_plone_site,
+                             is_trash_disabled, is_trash_profile_installed,
+                             within_link_integrity_check)
 
 
 def contentItems(self, filter=None):
@@ -18,7 +17,7 @@ def manage_trashObjects(self, ids=None, REQUEST=None):
     """
     if ids is None:
         ids = []
-    if isinstance(ids, basestring):
+    if isinstance(ids, six.string_types):
         ids = [ids]
     for id_ in ids:
         Trasher(self._getOb(id_)).trash()
@@ -64,8 +63,7 @@ def searchResults(self, REQUEST=None, **kw):
 
 
 def _getFieldObjects(self, *args, **kwargs):
-    return filter(lambda obj: not ITrashed.providedBy(obj),
-                  self._old__getFieldObjects(*args, **kwargs))
+    return [obj for obj in self._old__getFieldObjects(*args, **kwargs) if not ITrashed.providedBy(obj)]
 
 
 def getRawActionAdapter(self, *args, **kwargs):

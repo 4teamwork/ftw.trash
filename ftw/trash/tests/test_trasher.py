@@ -1,24 +1,18 @@
 from datetime import datetime
-from ftw.builder import Builder
-from ftw.builder import create
+
+from ftw.builder import Builder, create
 from ftw.testing import freeze
 from ftw.trash.exceptions import NotRestorable
-from ftw.trash.interfaces import IBeforeObjectRestoredEvent
-from ftw.trash.interfaces import IBeforeObjectTrashedEvent
-from ftw.trash.interfaces import IIsRestoreAllowedAdapter
-from ftw.trash.interfaces import IObjectRestoredEvent
-from ftw.trash.interfaces import IObjectTrashedEvent
-from ftw.trash.interfaces import IRestorable
-from ftw.trash.interfaces import ITrashed
-from ftw.trash.tests import duplicate_with_dexterity
-from ftw.trash.tests import FunctionalTestCase
+from ftw.trash.interfaces import (IBeforeObjectRestoredEvent,
+                                  IBeforeObjectTrashedEvent,
+                                  IIsRestoreAllowedAdapter,
+                                  IObjectRestoredEvent, IObjectTrashedEvent,
+                                  IRestorable, ITrashed)
+from ftw.trash.tests import FunctionalTestCase, duplicate_with_dexterity
 from ftw.trash.trasher import Trasher
 from zExceptions import Unauthorized
-from zope.component import adapter
-from zope.component import getMultiAdapter
-from zope.component import getSiteManager
-from zope.interface import implementer
-from zope.interface import Interface
+from zope.component import adapter, getMultiAdapter, getSiteManager
+from zope.interface import Interface, implementer
 
 
 @duplicate_with_dexterity
