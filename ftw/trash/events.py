@@ -1,7 +1,7 @@
 from ftw.trash.interfaces import (IBeforeObjectRestoredEvent,
                                   IBeforeObjectTrashedEvent,
                                   IObjectRestoredEvent, IObjectTrashedEvent)
-from zope.component.interfaces import ObjectEvent
+from zope.interface.interfaces import ObjectEvent
 from zope.interface import implementer
 
 

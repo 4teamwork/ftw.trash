@@ -3,7 +3,7 @@ import os
 from contextlib import contextmanager
 
 from Products.CMFCore.utils import getToolByName
-from Products.CMFPlone.utils import isLinked
+from zc.relation import interfaces
 from zope.component.hooks import getSite
 
 
@@ -52,7 +52,7 @@ def within_link_integrity_check():
         if frame is None:
             return False
 
-        if frame.f_code == isLinked.__code__:
+        if frame.f_code == interfaces.canFind.__code__:
             return True
 
 
