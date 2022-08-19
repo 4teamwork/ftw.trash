@@ -55,9 +55,9 @@ def searchResults(self, REQUEST=None, **kw):
     kw.setdefault('trashed', False)
 
     if kw['trashed'] is False:
-        kw['trashed'] = [False, None]
+        kw['trashed'] = [False]
     elif kw['trashed'] is None:
-        kw['trashed'] = [True, False, None]
+        kw['trashed'] = [True, False]
 
     return self._old_searchResults(REQUEST, **kw)
 
