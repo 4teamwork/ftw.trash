@@ -17,8 +17,7 @@ def contentItems(self, filter=None):
 
 
 def manage_trashObjects(self, ids=None, REQUEST=None):
-    """Marks objects as trashed.
-    """
+    """Marks objects as trashed."""
     if ids is None:
         ids = []
     if isinstance(ids, six.string_types):
@@ -41,8 +40,7 @@ def manage_delObjects(self, ids=None, REQUEST=None):
 
 
 def manage_immediatelyDeleteObjects(self, ids=None, REQUEST=None):
-    """Immediately delete an object instead of only trashing it.
-    """
+    """Immediately delete an object instead of only trashing it."""
     return self._old_manage_delObjects(ids=ids, REQUEST=REQUEST)
 
 
@@ -58,7 +56,13 @@ def searchResults(self, REQUEST=None, **kw):
     # - True => only return trashed objects
     # - False => return trashed objects (includes not properly indexed objects)
     # - None => return all objects, do not filter
-    kw.setdefault("trashed", False)
+
+    default = False
+    # Ensure trashed in query is used in setting keyword
+    if REQUEST is not None and "trashed" in REQUEST:
+        default = REQUEST["trashed"]
+
+    kw.setdefault("trashed", default)
 
     if kw["trashed"] is False:
         kw["trashed"] = [False]
