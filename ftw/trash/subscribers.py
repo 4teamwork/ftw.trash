@@ -14,12 +14,15 @@ def prevent_accessing_trashed_content_after_traversal(event):
     if not ITrashed.providedBy(context):
         return
 
-    if getSecurityManager().getUser().has_role('Manager'):
+    if getSecurityManager().getUser().has_role("Manager"):
         IStatusMessage(event.request).addStatusMessage(
-            _(u'statusmessage_content_trashed',
-              default=u'The content "${title}" is trashed.',
-              mapping={u'title': safe_unicode(context.Title())}),
-            type='warning')
+            _(
+                u"statusmessage_content_trashed",
+                default=u'The content "${title}" is trashed.',
+                mapping={u"title": safe_unicode(context.Title())},
+            ),
+            type="warning",
+        )
         return
 
     raise NotFound()

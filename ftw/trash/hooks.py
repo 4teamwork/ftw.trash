@@ -2,8 +2,8 @@ import logging
 
 from Products.CMFCore.utils import getToolByName
 
-PROFILE_ID = 'profile-ftw.trash:default'
-INDEXES = (('trashed', 'FieldIndex'),)
+PROFILE_ID = "profile-ftw.trash:default"
+INDEXES = (("trashed", "FieldIndex"),)
 
 
 def installed(site):
@@ -26,7 +26,7 @@ def add_catalog_indexes(context, logger=None):
     """
     if logger is None:
         # Called as upgrade step: define our own logger.
-        logger = logging.getLogger('ftw.trash')
+        logger = logging.getLogger("ftw.trash")
 
     # Run the catalog.xml step as that may have defined new metadata
     # columns.  We could instead add <depends name="catalog"/> to
@@ -34,10 +34,10 @@ def add_catalog_indexes(context, logger=None):
     # code makes this method usable as upgrade step as well.  Note that
     # this silently does nothing when there is no catalog.xml, so it
     # is quite safe.
-    setup = getToolByName(context, 'portal_setup')
-    setup.runImportStepFromProfile(PROFILE_ID, 'catalog')
+    setup = getToolByName(context, "portal_setup")
+    setup.runImportStepFromProfile(PROFILE_ID, "catalog")
 
-    catalog = getToolByName(context, 'portal_catalog')
+    catalog = getToolByName(context, "portal_catalog")
     indexes = catalog.indexes()
     # Specify the indexes you want, with ('index_name', 'index_type')
     wanted = INDEXES
@@ -48,12 +48,12 @@ def add_catalog_indexes(context, logger=None):
             indexables.append(name)
             logger.info("Added %s for field %s.", meta_type, name)
     if len(indexables) > 0:
-        logger.info("Indexing new indexes %s.", ', '.join(indexables))
+        logger.info("Indexing new indexes %s.", ", ".join(indexables))
         catalog.manage_reindexIndex(ids=indexables)
 
 
 def remove_catalog_indexes(context):
-    catalog = getToolByName(context, 'portal_catalog')
+    catalog = getToolByName(context, "portal_catalog")
     indexes = catalog.indexes()
 
     for name, meta_type in INDEXES:

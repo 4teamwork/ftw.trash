@@ -14,35 +14,39 @@ class TestTrashNotInstalled(FunctionalTestCase):
 
     @browsing
     def test_content_is_deleted_when_trash_not_installed(self, browser):
-        catalog = getToolByName(self.layer['portal'], 'portal_catalog')
-        self.grant('Contributor')
+        catalog = getToolByName(self.layer["portal"], "portal_catalog")
+        self.grant("Contributor")
 
-        folder = create(Builder('folder').within(create(Builder('folder'))))
+        folder = create(Builder("folder").within(create(Builder("folder"))))
         self.assertIn(folder.getId(), aq_parent(aq_inner(folder)).objectIds())
         self.assertEqual(2, len(catalog.unrestrictedSearchResults()))
 
         browser.login().visit(folder)
-        browser.click_on('Delete')
-        self.assertEquals('Do you really want to delete this folder and all its contents?',
-                          plone.first_heading())
-        browser.click_on('Delete')
+        browser.click_on("Delete")
+        self.assertEquals(
+            "Do you really want to delete this folder and all its contents?",
+            plone.first_heading(),
+        )
+        browser.click_on("Delete")
         self.assertNotIn(folder.getId(), aq_parent(aq_inner(folder)).objectIds())
         self.assertEqual(1, len(catalog.unrestrictedSearchResults()))
 
     @browsing
     def test_site_root_content_is_deleted_when_trash_not_installed(self, browser):
-        catalog = getToolByName(self.layer['portal'], 'portal_catalog')
-        self.grant('Contributor')
+        catalog = getToolByName(self.layer["portal"], "portal_catalog")
+        self.grant("Contributor")
 
-        folder = create(Builder('folder'))
+        folder = create(Builder("folder"))
         self.assertIn(folder.getId(), aq_parent(aq_inner(folder)).objectIds())
         self.assertEqual(1, len(catalog.unrestrictedSearchResults()))
 
         browser.login().visit(folder)
-        browser.click_on('Delete')
-        self.assertEquals('Do you really want to delete this folder and all its contents?',
-                          plone.first_heading())
-        browser.click_on('Delete')
+        browser.click_on("Delete")
+        self.assertEquals(
+            "Do you really want to delete this folder and all its contents?",
+            plone.first_heading(),
+        )
+        browser.click_on("Delete")
         self.assertNotIn(folder.getId(), aq_parent(aq_inner(folder)).objectIds())
         self.assertEqual(0, len(catalog.unrestrictedSearchResults()))
 
@@ -56,11 +60,13 @@ class TestTrashNotInstalled(FunctionalTestCase):
         ftw.trash.tests.test_deletion.TestDeletion.[test name]
         """
 
-        self.grant('Manager')
-        parent = create(Builder('folder'))
-        parent.manage_permission('Delete objects', roles=['Contributor'], acquire=False)
-        child = create(Builder('folder').within(parent))
-        child.manage_permission('Delete portal content', roles=['Contributor'], acquire=False)
+        self.grant("Manager")
+        parent = create(Builder("folder"))
+        parent.manage_permission("Delete objects", roles=["Contributor"], acquire=False)
+        child = create(Builder("folder").within(parent))
+        child.manage_permission(
+            "Delete portal content", roles=["Contributor"], acquire=False
+        )
         self.assertIn(child.getId(), parent.objectIds())
         self.assert_provides(parent, None)
 
@@ -71,7 +77,7 @@ class TestTrashNotInstalled(FunctionalTestCase):
             self.assertIn(child.getId(), parent.objectIds())
             self.assert_provides(parent, None)
 
-        user = create(Builder('user').with_roles('Contributor', on=parent))
+        user = create(Builder("user").with_roles("Contributor", on=parent))
         with self.user(user):
             parent.manage_delObjects([child.getId()])
             self.assertNotIn(child.getId(), parent.objectIds())

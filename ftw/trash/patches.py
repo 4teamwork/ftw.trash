@@ -1,9 +1,13 @@
 import six
 from ftw.trash.interfaces import ITrashed
 from ftw.trash.trasher import Trasher
-from ftw.trash.utils import (called_from_ZMI, is_migrating_plone_site,
-                             is_trash_disabled, is_trash_profile_installed,
-                             within_link_integrity_check)
+from ftw.trash.utils import (
+    called_from_ZMI,
+    is_migrating_plone_site,
+    is_trash_disabled,
+    is_trash_profile_installed,
+    within_link_integrity_check,
+)
 
 
 def contentItems(self, filter=None):
@@ -24,11 +28,13 @@ def manage_trashObjects(self, ids=None, REQUEST=None):
 
 
 def manage_delObjects(self, ids=None, REQUEST=None):
-    if is_trash_profile_installed() and \
-       not within_link_integrity_check() and \
-       not called_from_ZMI(REQUEST) and \
-       not is_trash_disabled() and \
-       not is_migrating_plone_site(self):
+    if (
+        is_trash_profile_installed()
+        and not within_link_integrity_check()
+        and not called_from_ZMI(REQUEST)
+        and not is_trash_disabled()
+        and not is_migrating_plone_site(self)
+    ):
         return self.manage_trashObjects(ids=ids, REQUEST=REQUEST)
     else:
         return self.manage_immediatelyDeleteObjects(ids=ids, REQUEST=REQUEST)
@@ -52,18 +58,22 @@ def searchResults(self, REQUEST=None, **kw):
     # - True => only return trashed objects
     # - False => return trashed objects (includes not properly indexed objects)
     # - None => return all objects, do not filter
-    kw.setdefault('trashed', False)
+    kw.setdefault("trashed", False)
 
-    if kw['trashed'] is False:
-        kw['trashed'] = [False]
-    elif kw['trashed'] is None:
-        kw['trashed'] = [True, False]
+    if kw["trashed"] is False:
+        kw["trashed"] = [False]
+    elif kw["trashed"] is None:
+        kw["trashed"] = [True, False]
 
     return self._old_searchResults(REQUEST, **kw)
 
 
 def _getFieldObjects(self, *args, **kwargs):
-    return [obj for obj in self._old__getFieldObjects(*args, **kwargs) if not ITrashed.providedBy(obj)]
+    return [
+        obj
+        for obj in self._old__getFieldObjects(*args, **kwargs)
+        if not ITrashed.providedBy(obj)
+    ]
 
 
 def getRawActionAdapter(self, *args, **kwargs):
