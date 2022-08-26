@@ -12,7 +12,6 @@ from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.statusmessages.interfaces import IStatusMessage
-from six.moves import map
 from zExceptions import BadRequest, Unauthorized
 from zope.component.hooks import getSite
 
@@ -36,8 +35,7 @@ class TrashView(BrowserView):
     @postonly
     @protect(CheckAuthenticator)
     def restore(self, REQUEST, uuid):
-        """Restore an item by uid.
-        """
+        """Restore an item by uid."""
         catalog = getToolByName(self.context, "portal_catalog")
         brains = catalog({"UID": uuid, "trashed": True})
         if len(brains) != 1:
@@ -98,8 +96,7 @@ class TrashView(BrowserView):
     @postonly
     @protect(CheckAuthenticator)
     def delete_permanently(self, REQUEST, uuid):
-        """Permanently delete a trashed item by uuid.
-        """
+        """Permanently delete a trashed item by uuid."""
         catalog = getToolByName(self.context, "portal_catalog")
         brains = catalog({"UID": uuid, "trashed": True})
         if len(brains) != 1:
@@ -132,16 +129,14 @@ class TrashView(BrowserView):
         return self.request.response.redirect(self.context.absolute_url() + "/trash")
 
     def confirm_clean_trash(self):
-        """Show confirmation dialog for cleaning the trash.
-        """
+        """Show confirmation dialog for cleaning the trash."""
         self.request.set("disable_border", "1")
         return self.clean_confirmation_tempalte()
 
     @postonly
     @protect(CheckAuthenticator)
     def clean_trash(self, REQUEST):
-        """Clean the trash by permantly deleting all trashed objects.
-        """
+        """Clean the trash by permantly deleting all trashed objects."""
         if self.request.form.get("cancel"):
             return self.request.response.redirect(
                 self.context.absolute_url() + "/trash"

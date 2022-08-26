@@ -9,7 +9,6 @@ from ftw.trash.events import (
 )
 from ftw.trash.exceptions import NotRestorable
 from ftw.trash.interfaces import IIsRestoreAllowedAdapter, IRestorable, ITrashed
-from six.moves import map
 from zExceptions import Unauthorized
 from zope.component import adapter, getMultiAdapter
 from zope.event import notify
@@ -17,8 +16,7 @@ from zope.interface import Interface, alsoProvides, implementer, noLongerProvide
 
 
 class Trasher(object):
-    """The trasher manages trashing, restoring and deleting of objects.
-    """
+    """The trasher manages trashing, restoring and deleting of objects."""
 
     def __init__(self, context):
         self.context = context

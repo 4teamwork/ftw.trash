@@ -1,4 +1,3 @@
-import six
 from ftw.trash.interfaces import ITrashed
 from ftw.trash.trasher import Trasher
 from ftw.trash.utils import (
@@ -20,7 +19,7 @@ def manage_trashObjects(self, ids=None, REQUEST=None):
     """Marks objects as trashed."""
     if ids is None:
         ids = []
-    if isinstance(ids, six.string_types):
+    if isinstance(ids, str):
         ids = [ids]
     for id_ in ids:
         Trasher(self._getOb(id_)).trash()
