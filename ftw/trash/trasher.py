@@ -1,23 +1,22 @@
 from AccessControl import getSecurityManager
 from Acquisition import aq_inner, aq_parent
 from collective.deletepermission.del_object import protect_del_objects
-from ftw.trash.events import (BeforeObjectRestoredEvent,
-                              BeforeObjectTrashedEvent, ObjectRestoredEvent,
-                              ObjectTrashedEvent)
+from ftw.trash.events import (
+    BeforeObjectRestoredEvent,
+    BeforeObjectTrashedEvent,
+    ObjectRestoredEvent,
+    ObjectTrashedEvent,
+)
 from ftw.trash.exceptions import NotRestorable
-from ftw.trash.interfaces import (IIsRestoreAllowedAdapter, IRestorable,
-                                  ITrashed)
-from six.moves import map
+from ftw.trash.interfaces import IIsRestoreAllowedAdapter, IRestorable, ITrashed
 from zExceptions import Unauthorized
 from zope.component import adapter, getMultiAdapter
 from zope.event import notify
-from zope.interface import (Interface, alsoProvides, implementer,
-                            noLongerProvides)
+from zope.interface import Interface, alsoProvides, implementer, noLongerProvides
 
 
 class Trasher(object):
-    """The trasher manages trashing, restoring and deleting of objects.
-    """
+    """The trasher manages trashing, restoring and deleting of objects."""
 
     def __init__(self, context):
         self.context = context
@@ -34,7 +33,9 @@ class Trasher(object):
             # Cannot restore an object when the parent is still trashed.
             return False
 
-        if not getMultiAdapter((self.context, self.context.REQUEST), IIsRestoreAllowedAdapter):
+        if not getMultiAdapter(
+            (self.context, self.context.REQUEST), IIsRestoreAllowedAdapter
+        ):
             return False
 
         return ITrashed.providedBy(self.context)
@@ -43,7 +44,9 @@ class Trasher(object):
         if not self.is_restorable():
             raise NotRestorable()
 
-        if not getSecurityManager().checkPermission('Restore trashed content', self.context):
+        if not getSecurityManager().checkPermission(
+            "Restore trashed content", self.context
+        ):
             raise Unauthorized()
 
         notify(BeforeObjectRestoredEvent(self.context))
@@ -56,7 +59,7 @@ class Trasher(object):
             alsoProvides(obj, IRestorable)
 
         obj.setModificationDate()
-        obj.reindexObject(idxs=['object_provides', 'trashed', 'modified'])
+        obj.reindexObject(idxs=["object_provides", "trashed", "modified"])
         list(map(self._trash_recursive, obj.objectValues()))
 
     def _restore_recursive(self, obj, is_root=False):
@@ -67,7 +70,7 @@ class Trasher(object):
         noLongerProvides(obj, ITrashed)
         noLongerProvides(obj, IRestorable)
         obj.setModificationDate()
-        obj.reindexObject(idxs=['object_provides', 'trashed', 'modified'])
+        obj.reindexObject(idxs=["object_provides", "trashed", "modified"])
         list(map(self._restore_recursive, obj.objectValues()))
 
 
@@ -78,4 +81,4 @@ def default_is_restore_allowed(context, request):
     object for restoring objects, as the action can be compared to adding new content.
     """
     parent = aq_parent(aq_inner(context))
-    return bool(getSecurityManager().checkPermission('Add portal content', parent))
+    return bool(getSecurityManager().checkPermission("Add portal content", parent))

@@ -3,8 +3,7 @@ from contextlib import contextmanager
 from unittest import TestCase
 
 import transaction
-from AccessControl.SecurityManagement import (getSecurityManager,
-                                              setSecurityManager)
+from AccessControl.SecurityManagement import getSecurityManager, setSecurityManager
 from DateTime import DateTime
 from ftw.builder import builder_registry
 from ftw.testing import IS_PLONE_5
@@ -19,8 +18,8 @@ class FunctionalTestCase(TestCase):
     layer = TRASH_FUNCTIONAL
 
     def setUp(self):
-        self.portal = self.layer['portal']
-        self.request = self.layer['request']
+        self.portal = self.layer["portal"]
+        self.request = self.layer["request"]
 
     def grant(self, *roles):
         setRoles(self.portal, TEST_USER_ID, list(roles))
@@ -28,11 +27,11 @@ class FunctionalTestCase(TestCase):
 
     @contextmanager
     def user(self, username):
-        if hasattr(username, 'getUserName'):
+        if hasattr(username, "getUserName"):
             username = username.getUserName()
 
         sm = getSecurityManager()
-        login(self.layer['portal'], username)
+        login(self.layer["portal"], username)
         try:
             yield
         finally:
@@ -42,35 +41,44 @@ class FunctionalTestCase(TestCase):
         """Return the catalog index data for an object as dict.
         """
         self.maybe_process_indexing_queue()
-        catalog = getToolByName(self.portal, 'portal_catalog')
-        rid = catalog.getrid('/'.join(obj.getPhysicalPath()))
+        catalog = getToolByName(self.portal, "portal_catalog")
+        rid = catalog.getrid("/".join(obj.getPhysicalPath()))
         return catalog.getIndexDataForRID(rid)
 
     def get_catalog_metadata(self, obj):
         """Return the catalog metadata for an object as dict.
         """
         self.maybe_process_indexing_queue()
-        catalog = getToolByName(self.portal, 'portal_catalog')
-        rid = catalog.getrid('/'.join(obj.getPhysicalPath()))
+        catalog = getToolByName(self.portal, "portal_catalog")
+        rid = catalog.getrid("/".join(obj.getPhysicalPath()))
         return catalog.getMetadataForRID(rid)
 
     def assert_modified_date(self, expected, obj):
         expected = DateTime(expected)
-        self.assertEqual(expected, obj.modified(), '{!r}.modified() is wrong'.format(obj))
-        self.assertEqual(expected, self.get_catalog_metadata(obj)['modified'],
-                         '{!r}\'s "modified" metadata is wrong'.format(obj))
+        self.assertEqual(
+            expected, obj.modified(), "{!r}.modified() is wrong".format(obj)
+        )
+        self.assertEqual(
+            expected,
+            self.get_catalog_metadata(obj)["modified"],
+            '{!r}\'s "modified" metadata is wrong'.format(obj),
+        )
 
-        catalog = getToolByName(self.portal, 'portal_catalog')
-        modified_index = catalog._catalog.indexes.get('modified')
+        catalog = getToolByName(self.portal, "portal_catalog")
+        modified_index = catalog._catalog.indexes.get("modified")
 
         self.assertEqual(
-            modified_index._convert(expected), self.get_catalog_indexdata(obj)['modified'],
-            '{!r}\'s "modified" index data is wrong'.format(obj))
+            modified_index._convert(expected),
+            self.get_catalog_indexdata(obj)["modified"],
+            '{!r}\'s "modified" index data is wrong'.format(obj),
+        )
 
     def assert_provides(self, obj, *expected):
         expected = set([_f for _f in expected if _f])
         got = {iface for iface in (IRestorable, ITrashed) if iface.providedBy(obj)}
-        self.assertEquals(expected, got, 'Unexpected interfaces provided by {!r}'.format(obj))
+        self.assertEquals(
+            expected, got, "Unexpected interfaces provided by {!r}".format(obj)
+        )
 
     @property
     def is_dexterity(self):
@@ -81,6 +89,7 @@ class FunctionalTestCase(TestCase):
             return
 
         from Products.CMFCore.indexing import processQueue
+
         processQueue()
 
 
@@ -107,7 +116,7 @@ def duplicate_with_dexterity(klass):
         def setUp(self):
             self._builder_isolation = builder_registry.temporary_builder_config()
             self._builder_isolation.__enter__()
-            builder_registry.register('folder', DXFolderBuilder, force=True)
+            builder_registry.register("folder", DXFolderBuilder, force=True)
             super(DexterityTestSuite, self).setUp()
 
         def tearDown(self):
@@ -119,7 +128,7 @@ def duplicate_with_dexterity(klass):
         def is_dexterity(self):
             return True
 
-    DexterityTestSuite.__name__ = klass.__name__ + 'Dexterity'
+    DexterityTestSuite.__name__ = klass.__name__ + "Dexterity"
     DexterityTestSuite.__module__ = klass.__module__
     sys._getframe(1).f_locals[DexterityTestSuite.__name__] = DexterityTestSuite
     return klass

@@ -1,9 +1,11 @@
-from ftw.builder.testing import (BUILDER_LAYER, functional_session_factory,
-                                 set_builder_session_factory)
+from ftw.builder.testing import (
+    BUILDER_LAYER,
+    functional_session_factory,
+    set_builder_session_factory,
+)
 from ftw.testing import IS_PLONE_5
 from ftw.testing.layer import COMPONENT_REGISTRY_ISOLATION
-from plone.app.testing import (FunctionalTesting, PloneSandboxLayer,
-                               applyProfile)
+from plone.app.testing import FunctionalTesting, PloneSandboxLayer, applyProfile
 from plone.testing import z2
 from zope.configuration import xmlconfig
 
@@ -18,26 +20,27 @@ class TrashLayer(PloneSandboxLayer):
             '  <includePlugins package="plone" />'
             '  <includePluginsOverrides package="plone" />'
             '  <include package="ftw.trash.tests" />'
-            '</configure>',
-            context=configurationContext)
+            "</configure>",
+            context=configurationContext,
+        )
 
-        z2.installProduct(app, 'ftw.trash')
-        z2.installProduct(app, 'Products.PloneFormGen')
+        z2.installProduct(app, "ftw.trash")
+        z2.installProduct(app, "Products.PloneFormGen")
 
     def setUpPloneSite(self, portal):
-        applyProfile(portal, 'ftw.trash:default')
-        applyProfile(portal, 'ftw.trash.tests:dxtests')
-        applyProfile(portal, 'Products.PloneFormGen:default')
+        applyProfile(portal, "ftw.trash:default")
+        applyProfile(portal, "ftw.trash.tests:dxtests")
+        applyProfile(portal, "Products.PloneFormGen:default")
 
         if IS_PLONE_5:
-            applyProfile(portal, 'plone.app.contenttypes:default')
+            applyProfile(portal, "plone.app.contenttypes:default")
 
 
 TRASH_FIXTURE = TrashLayer()
 TRASH_FUNCTIONAL = FunctionalTesting(
-    bases=(TRASH_FIXTURE,
-           set_builder_session_factory(functional_session_factory)),
-    name="ftw.trash:functional")
+    bases=(TRASH_FIXTURE, set_builder_session_factory(functional_session_factory)),
+    name="ftw.trash:functional",
+)
 
 
 class TrashNotInstalledLayer(PloneSandboxLayer):
@@ -47,6 +50,7 @@ class TrashNotInstalledLayer(PloneSandboxLayer):
     apply patches, but the patches should only change behavior when also the Generic Setup
     profile is installed.
     """
+
     defaultBases = (COMPONENT_REGISTRY_ISOLATION, BUILDER_LAYER)
 
     def setUpZope(self, app, configurationContext):
@@ -56,20 +60,24 @@ class TrashNotInstalledLayer(PloneSandboxLayer):
             '  <includePlugins package="plone" />'
             '  <includePluginsOverrides package="plone" />'
             '  <include package="ftw.trash.tests" />'
-            '</configure>',
-            context=configurationContext)
+            "</configure>",
+            context=configurationContext,
+        )
 
-        z2.installProduct(app, 'ftw.trash')
+        z2.installProduct(app, "ftw.trash")
 
     def setUpPloneSite(self, portal):
-        applyProfile(portal, 'ftw.trash.tests:dxtests')
-        applyProfile(portal, 'collective.deletepermission:default')
+        applyProfile(portal, "ftw.trash.tests:dxtests")
+        applyProfile(portal, "collective.deletepermission:default")
 
         if IS_PLONE_5:
-            applyProfile(portal, 'plone.app.contenttypes:default')
+            applyProfile(portal, "plone.app.contenttypes:default")
 
 
 TRASH_NOT_INSTALLED_FUNCTIONAL = FunctionalTesting(
-    bases=(TrashNotInstalledLayer(),
-           set_builder_session_factory(functional_session_factory)),
-    name="ftw.trash:not-installed:functional")
+    bases=(
+        TrashNotInstalledLayer(),
+        set_builder_session_factory(functional_session_factory),
+    ),
+    name="ftw.trash:not-installed:functional",
+)

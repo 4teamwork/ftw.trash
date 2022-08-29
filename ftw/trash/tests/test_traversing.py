@@ -8,14 +8,13 @@ from ftw.trash.trasher import Trasher
 
 @duplicate_with_dexterity
 class TestTraversing(FunctionalTestCase):
-
     @browsing
     def test_browsing_trashed_content_raises_404(self, browser):
-        self.grant('Contributor')
+        self.grant("Contributor")
 
-        parent = create(Builder('folder'))
-        folder = create(Builder('folder').within(parent))
-        subfolder = create(Builder('folder').within(folder))
+        parent = create(Builder("folder"))
+        folder = create(Builder("folder").within(parent))
+        subfolder = create(Builder("folder").within(folder))
 
         browser.login()
         # the user can access all content, since none is trashed
@@ -37,9 +36,9 @@ class TestTraversing(FunctionalTestCase):
 
     @browsing
     def test_allow_Manager_to_browse_trashed_content_with_status_message(self, browser):
-        self.grant('Manager')
+        self.grant("Manager")
 
-        folder = create(Builder('folder').titled(u'Fancy Folder'))
+        folder = create(Builder("folder").titled(u"Fancy Folder"))
         browser.login()
         browser.open(folder)
 
@@ -51,15 +50,15 @@ class TestTraversing(FunctionalTestCase):
 
     @browsing
     def test_trashed_download_view_not_accessible(self, browser):
-        self.grant('Contributor')
-        folder = create(Builder('folder'))
-        file_ = create(Builder('file').within(folder).with_dummy_content())
+        self.grant("Contributor")
+        folder = create(Builder("folder"))
+        file_ = create(Builder("file").within(folder).with_dummy_content())
 
         browser.login()
-        browser.open(file_.absolute_url() + '/@@download/file/test.txt')
+        browser.open(file_.absolute_url() + "/@@download/file/test.txt")
 
         Trasher(folder).trash()
         transaction.commit()
 
         with browser.expect_http_error(404):
-            browser.open(file_.absolute_url() + '/@@download/file/test.txt')
+            browser.open(file_.absolute_url() + "/@@download/file/test.txt")
