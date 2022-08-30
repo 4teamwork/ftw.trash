@@ -1,83 +1,57 @@
-from ftw.builder.testing import (
-    BUILDER_LAYER,
-    functional_session_factory,
-    set_builder_session_factory,
+# -*- coding: utf-8 -*-
+from plone.app.contenttypes.testing import PLONE_APP_CONTENTTYPES_FIXTURE
+from plone.app.testing import (
+    FunctionalTesting,
+    IntegrationTesting,
+    PloneSandboxLayer,
+    applyProfile,
 )
-from ftw.testing import IS_PLONE_5
-from ftw.testing.layer import COMPONENT_REGISTRY_ISOLATION
-from plone.app.testing import FunctionalTesting, PloneSandboxLayer, applyProfile
 from plone.testing import z2
-from zope.configuration import xmlconfig
+
+import ftw.upgrade
+import ftw.trash
 
 
-class TrashLayer(PloneSandboxLayer):
-    defaultBases = (COMPONENT_REGISTRY_ISOLATION, BUILDER_LAYER)
+class FtwTrashLayer(PloneSandboxLayer):
+
+    defaultBases = (PLONE_APP_CONTENTTYPES_FIXTURE,)
 
     def setUpZope(self, app, configurationContext):
-        xmlconfig.string(
-            '<configure xmlns="http://namespaces.zope.org/zope">'
-            '  <include package="z3c.autoinclude" file="meta.zcml" />'
-            '  <includePlugins package="plone" />'
-            '  <includePluginsOverrides package="plone" />'
-            '  <include package="ftw.trash.tests" />'
-            "</configure>",
-            context=configurationContext,
-        )
+        # Load any other ZCML that is required for your tests.
+        # The z3c.autoinclude feature is disabled in the Plone fixture base
+        # layer.
+        import plone.restapi
 
-        z2.installProduct(app, "ftw.trash")
-        z2.installProduct(app, "Products.PloneFormGen")
+        self.loadZCML(package=plone.restapi)
+        self.loadZCML(package=ftw.upgrade)
+        self.loadZCML(package=ftw.trash)
 
     def setUpPloneSite(self, portal):
         applyProfile(portal, "ftw.trash:default")
-        applyProfile(portal, "ftw.trash.tests:dxtests")
-        applyProfile(portal, "Products.PloneFormGen:default")
-
-        if IS_PLONE_5:
-            applyProfile(portal, "plone.app.contenttypes:default")
 
 
-TRASH_FIXTURE = TrashLayer()
-TRASH_FUNCTIONAL = FunctionalTesting(
-    bases=(TRASH_FIXTURE, set_builder_session_factory(functional_session_factory)),
-    name="ftw.trash:functional",
+SITE_OWNER_NAME = "admin"
+SITE_OWNER_PASSWORD = "admin"
+
+FTW_TRASH_FIXTURE = FtwTrashLayer()
+
+
+FTW_TRASH_INTEGRATION_TESTING = IntegrationTesting(
+    bases=(FTW_TRASH_FIXTURE,),
+    name="FtwTrashLayer:IntegrationTesting",
 )
 
 
-class TrashNotInstalledLayer(PloneSandboxLayer):
-    """In the this layer, the ftw.trash package's ZCML is loaded but the Generic Setup
-    profile is not installed.
-    Loading of the ZCML is important as it would also happen in the production and it will
-    apply patches, but the patches should only change behavior when also the Generic Setup
-    profile is installed.
-    """
-
-    defaultBases = (COMPONENT_REGISTRY_ISOLATION, BUILDER_LAYER)
-
-    def setUpZope(self, app, configurationContext):
-        xmlconfig.string(
-            '<configure xmlns="http://namespaces.zope.org/zope">'
-            '  <include package="z3c.autoinclude" file="meta.zcml" />'
-            '  <includePlugins package="plone" />'
-            '  <includePluginsOverrides package="plone" />'
-            '  <include package="ftw.trash.tests" />'
-            "</configure>",
-            context=configurationContext,
-        )
-
-        z2.installProduct(app, "ftw.trash")
-
-    def setUpPloneSite(self, portal):
-        applyProfile(portal, "ftw.trash.tests:dxtests")
-        applyProfile(portal, "collective.deletepermission:default")
-
-        if IS_PLONE_5:
-            applyProfile(portal, "plone.app.contenttypes:default")
+FTW_TRASH_FUNCTIONAL_TESTING = FunctionalTesting(
+    bases=(FTW_TRASH_FIXTURE,),
+    name="FtwTrashLayer:FunctionalTesting",
+)
 
 
-TRASH_NOT_INSTALLED_FUNCTIONAL = FunctionalTesting(
+FTW_TRASH_ACCEPTANCE_TESTING = FunctionalTesting(
     bases=(
-        TrashNotInstalledLayer(),
-        set_builder_session_factory(functional_session_factory),
+        FTW_TRASH_FIXTURE,
+        z2.ZSERVER_FIXTURE,
     ),
-    name="ftw.trash:not-installed:functional",
+    name="FtwTrashLayer:AcceptanceTesting",
 )
