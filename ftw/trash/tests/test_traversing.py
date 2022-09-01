@@ -1,64 +1,64 @@
-import transaction
-from ftw.builder import Builder, create
-from ftw.testbrowser import browsing
-from ftw.testbrowser.pages import statusmessages
-from ftw.trash.tests import FunctionalTestCase, duplicate_with_dexterity
-from ftw.trash.trasher import Trasher
+# import transaction
+# from ftw.builder import Builder, create
+# from ftw.testbrowser import browsing
+# from ftw.testbrowser.pages import statusmessages
+# from ftw.trash.tests import FunctionalTestCase, duplicate_with_dexterity
+# from ftw.trash.trasher import Trasher
 
 
-@duplicate_with_dexterity
-class TestTraversing(FunctionalTestCase):
-    @browsing
-    def test_browsing_trashed_content_raises_404(self, browser):
-        self.grant("Contributor")
+# @duplicate_with_dexterity
+# class TestTraversing(FunctionalTestCase):
+#     @browsing
+#     def test_browsing_trashed_content_raises_404(self, browser):
+#         self.grant("Contributor")
 
-        parent = create(Builder("folder"))
-        folder = create(Builder("folder").within(parent))
-        subfolder = create(Builder("folder").within(folder))
+#         parent = create(Builder("folder"))
+#         folder = create(Builder("folder").within(parent))
+#         subfolder = create(Builder("folder").within(folder))
 
-        browser.login()
-        # the user can access all content, since none is trashed
-        browser.open(parent)
-        browser.open(folder)
-        browser.open(subfolder)
+#         browser.login()
+#         # the user can access all content, since none is trashed
+#         browser.open(parent)
+#         browser.open(folder)
+#         browser.open(subfolder)
 
-        # when we trash "folder", the parent is still accessible, but not the trashed content
-        Trasher(folder).trash()
-        transaction.commit()
+#         # when we trash "folder", the parent is still accessible, but not the trashed content
+#         Trasher(folder).trash()
+#         transaction.commit()
 
-        browser.open(parent)
+#         browser.open(parent)
 
-        with browser.expect_http_error(404):
-            browser.open(folder)
+#         with browser.expect_http_error(404):
+#             browser.open(folder)
 
-        with browser.expect_http_error(404):
-            browser.open(subfolder)
+#         with browser.expect_http_error(404):
+#             browser.open(subfolder)
 
-    @browsing
-    def test_allow_Manager_to_browse_trashed_content_with_status_message(self, browser):
-        self.grant("Manager")
+#     @browsing
+#     def test_allow_Manager_to_browse_trashed_content_with_status_message(self, browser):
+#         self.grant("Manager")
 
-        folder = create(Builder("folder").titled(u"Fancy Folder"))
-        browser.login()
-        browser.open(folder)
+#         folder = create(Builder("folder").titled(u"Fancy Folder"))
+#         browser.login()
+#         browser.open(folder)
 
-        Trasher(folder).trash()
-        transaction.commit()
-        browser.open(folder)
+#         Trasher(folder).trash()
+#         transaction.commit()
+#         browser.open(folder)
 
-        statusmessages.assert_message('The content "Fancy Folder" is trashed.')
+#         statusmessages.assert_message('The content "Fancy Folder" is trashed.')
 
-    @browsing
-    def test_trashed_download_view_not_accessible(self, browser):
-        self.grant("Contributor")
-        folder = create(Builder("folder"))
-        file_ = create(Builder("file").within(folder).with_dummy_content())
+#     @browsing
+#     def test_trashed_download_view_not_accessible(self, browser):
+#         self.grant("Contributor")
+#         folder = create(Builder("folder"))
+#         file_ = create(Builder("file").within(folder).with_dummy_content())
 
-        browser.login()
-        browser.open(file_.absolute_url() + "/@@download/file/test.txt")
+#         browser.login()
+#         browser.open(file_.absolute_url() + "/@@download/file/test.txt")
 
-        Trasher(folder).trash()
-        transaction.commit()
+#         Trasher(folder).trash()
+#         transaction.commit()
 
-        with browser.expect_http_error(404):
-            browser.open(file_.absolute_url() + "/@@download/file/test.txt")
+#         with browser.expect_http_error(404):
+#             browser.open(file_.absolute_url() + "/@@download/file/test.txt")
