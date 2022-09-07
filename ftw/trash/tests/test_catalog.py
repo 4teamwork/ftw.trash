@@ -2,6 +2,7 @@
 """Setup tests for this package."""
 from ftw.trash.testing import FTW_TRASH_INTEGRATION_TESTING  # noqa: E501
 from ftw.trash.trasher import Trasher
+
 from plone import api
 from plone.app.testing import TEST_USER_ID, setRoles
 import unittest
@@ -24,7 +25,9 @@ class TestCatalog(unittest.TestCase):
             self.installer = api.portal.get_tool("portal_quickinstaller")
 
     def test_filters_trashed_content_by_default(self):
+
         setRoles(self.portal, TEST_USER_ID, ["Contributor"])
+        
         foo = api.content.create(
             container=self.portal,
             type="Document",
@@ -33,6 +36,7 @@ class TestCatalog(unittest.TestCase):
         )
 
         self.assertEqual(foo.Title(), "Foo")
+
         parent = foo.__parent__
         self.assertIn("foo", parent.objectIds())
 
@@ -47,11 +51,13 @@ class TestCatalog(unittest.TestCase):
         self.assertTrue(len(brains) == 2)
 
         Trasher(bar).trash()
+    
         brains = api.content.find(id=["foo", "bar"])
         self.assertTrue(len(brains) == 1)
         self.assertEqual(brains[0].id, "foo")
 
     def test_returns_trashed_content_when_explicitly_queried_for(self):
+        
         setRoles(self.portal, TEST_USER_ID, ["Contributor"])
 
         api.content.create(
