@@ -8,6 +8,9 @@
 
   <metal:block fill-slot="style_slot">
     <style>
+    table,th,td {
+      border:3px solid black;
+    }
       table.listing td div {
         word-break: break-word;
       }
