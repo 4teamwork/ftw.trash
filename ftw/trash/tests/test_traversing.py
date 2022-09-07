@@ -1,64 +1,83 @@
-# import transaction
-# from ftw.builder import Builder, create
-# from ftw.testbrowser import browsing
-# from ftw.testbrowser.pages import statusmessages
-# from ftw.trash.tests import FunctionalTestCase, duplicate_with_dexterity
-# from ftw.trash.trasher import Trasher
+from ftw.trash.testing import FTW_TRASH_FUNCTIONAL_TESTING
+from ftw.trash.trasher import Trasher
 
+from plone import api
+from plone.app.testing import SITE_OWNER_NAME
+from plone.app.testing import SITE_OWNER_PASSWORD
+from plone.app.testing import TEST_USER_ID, setRoles
+from plone.testing.zope import Browser
 
-# @duplicate_with_dexterity
-# class TestTraversing(FunctionalTestCase):
-#     @browsing
-#     def test_browsing_trashed_content_raises_404(self, browser):
-#         self.grant("Contributor")
+import transaction
+import unittest
 
-#         parent = create(Builder("folder"))
-#         folder = create(Builder("folder").within(parent))
-#         subfolder = create(Builder("folder").within(folder))
+class TestTraversing(unittest.TestCase):
+    layer = FTW_TRASH_FUNCTIONAL_TESTING
 
-#         browser.login()
-#         # the user can access all content, since none is trashed
-#         browser.open(parent)
-#         browser.open(folder)
-#         browser.open(subfolder)
+    def setUp(self):
+        """Custom shared utility setup for tests."""
+        app = self.layer["app"]
+        self.portal = self.layer["portal"]
+        self.request = self.layer["request"]
+        self.portal_url = self.portal.absolute_url()
 
-#         # when we trash "folder", the parent is still accessible, but not the trashed content
-#         Trasher(folder).trash()
-#         transaction.commit()
+        self.browser = Browser(app)
+        self.browser.handleErrors = False
+        self.browser.addHeader(
+            "Authorization",
+            "Basic {username}:{password}".format(
+                username=SITE_OWNER_NAME, password=SITE_OWNER_PASSWORD
+            ),
+        )
 
-#         browser.open(parent)
+    def test_browsing_trashed_content_raises_404(self):
 
-#         with browser.expect_http_error(404):
-#             browser.open(folder)
+        setRoles(self.portal, TEST_USER_ID, ["Contributor"])
+        
+        parent = api.content.create(
+            container=self.portal,
+            type="Folder",
+            id="parent",
+            title="Parent",
+        )
+        folder = api.content.create(
+            container=parent, 
+            type="Folder", 
+            id="foo", 
+            title="Foo"
+        )
+        subfolder = api.content.create(
+            container=parent, 
+            type="Folder", 
+            id="bar", 
+            title="Bar"
+        )
 
-#         with browser.expect_http_error(404):
-#             browser.open(subfolder)
+        self.browser.open(self.portal_url + "/parent")
+        self.browser.open(self.portal_url + "/folder")
+        self.browser.open(self.portal_url + "/subfolder")
 
-#     @browsing
-#     def test_allow_Manager_to_browse_trashed_content_with_status_message(self, browser):
-#         self.grant("Manager")
+        Trasher(folder).trash()
+        transaction.commit()
 
-#         folder = create(Builder("folder").titled(u"Fancy Folder"))
-#         browser.login()
-#         browser.open(folder)
+        with self.browser.expect_http_error(404):
+            self.browser.open(self.portal_url + "/folder")
 
-#         Trasher(folder).trash()
-#         transaction.commit()
-#         browser.open(folder)
+        with self.browser.expect_http_error(404):
+            self.browser.open(self.portal_url + "/subfolder")
 
-#         statusmessages.assert_message('The content "Fancy Folder" is trashed.')
+    def test_allow_Manager_to_browse_trashed_content_with_status_message(self):
+        setRoles(self.portal, TEST_USER_ID, ["Manager"])
+        folder = api.content.create(
+            container=self.portal,
+            type="Folder",
+            id="parent",
+            title="Fancy Folder",
+        )
 
-#     @browsing
-#     def test_trashed_download_view_not_accessible(self, browser):
-#         self.grant("Contributor")
-#         folder = create(Builder("folder"))
-#         file_ = create(Builder("file").within(folder).with_dummy_content())
+        self.browser.open(self.portal_url + "/folder")
 
-#         browser.login()
-#         browser.open(file_.absolute_url() + "/@@download/file/test.txt")
-
-#         Trasher(folder).trash()
-#         transaction.commit()
-
-#         with browser.expect_http_error(404):
-#             browser.open(file_.absolute_url() + "/@@download/file/test.txt")
+        Trasher(folder).trash()
+        transaction.commit()
+        self.browser.open(self.portal_url + "/folder")
+        assert('The content "Fancy Folder" is trashed.' in self.browser.content)
+    
