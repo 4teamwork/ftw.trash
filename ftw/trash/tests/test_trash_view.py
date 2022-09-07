@@ -1,285 +1,507 @@
-# from datetime import datetime
+from ftw.trash.testing import FTW_TRASH_INTEGRATION_TESTING,FTW_TRASH_FUNCTIONAL_TESTING  # noqa: E501
 
-# import transaction
-# from ftw.builder import Builder, create
-# from ftw.testbrowser import browsing
-# from ftw.testbrowser.pages import plone, statusmessages
-# from ftw.testing import IS_PLONE_5, freeze
-# from ftw.trash.interfaces import IRestorable, ITrashed
-# from ftw.trash.tests import FunctionalTestCase, duplicate_with_dexterity
-# from ftw.trash.trasher import Trasher
+from ftw.trash.trasher import Trasher
+from ftw.trash.exceptions import NotRestorable
+from ftw.trash.interfaces import (
+          IBeforeObjectRestoredEvent,
+          IBeforeObjectTrashedEvent,
+          IIsRestoreAllowedAdapter,
+          IObjectRestoredEvent,
+          IObjectTrashedEvent,
+    IRestorable,
+    ITrashed,
+)
+
+from plone import api
+from plone.app.testing import TEST_USER_ID, setRoles
+
+import unittest
+
+from zope.component import adapter, getMultiAdapter, getSiteManager
+from zope.interface import Interface, implementer
 
 
-# @duplicate_with_dexterity
-# class TestTrashView(FunctionalTestCase):
-#     @browsing
-#     def test_view_requires_restore_permission(self, browser):
-#         self.grant("Contributor")
-#         self.portal.manage_permission(
-#             "Restore trashed content", roles=[], acquire=False
-#         )
-#         transaction.commit()
+class TestTrasher(unittest.TestCase):
+    layer = FTW_TRASH_INTEGRATION_TESTING
 
-#         trash_link_label = "Trash"
+    def assert_provides(self, obj, *expected):
+        expected = set([_f for _f in expected if _f])
+        got = {iface for iface in (IRestorable, ITrashed) if iface.providedBy(obj)}
+        self.assertEquals(
+            expected, got, "Unexpected interfaces provided by {!r}".format(obj)
+        )
 
-#         browser.login().open()
-#         self.assertNotIn(trash_link_label, browser.css("#portal-personaltools li").text)
-#         with browser.expect_unauthorized():
-#             browser.open(view="trash")
+    def get_catalog_indexdata(self, obj):
+        """Return the catalog index data for an object as dict."""
+        self.maybe_process_indexing_queue()
+        catalog = api.portal.get_tool("portal_catalog")
+        rid = catalog.getrid("/".join(obj.getPhysicalPath()))
+        return catalog.getIndexDataForRID(rid)
 
-#         self.portal.manage_permission(
-#             "Restore trashed content", roles=["Contributor"], acquire=False
-#         )
-#         transaction.commit()
+    def maybe_process_indexing_queue(self):
+        from Products.CMFCore.indexing import processQueue
 
-#         browser.open()
-#         self.assertIn(trash_link_label, browser.css("#portal-personaltools li").text)
-#         browser.css("#portal-personaltools li").find(trash_link_label).first.click()
-#         self.assertEquals(self.portal.portal_url() + "/trash", browser.url)
+        processQueue()
 
-#     @browsing
-#     def test_lists_only_restorable_content(self, browser):
-#         self.grant("Site Administrator")
+    def setUp(self):
+        """Custom shared utility setup for tests."""
+        self.portal = self.layer["portal"]
 
-#         create(Builder("folder").titled(u"Keep that"))
-#         parent = create(Builder("folder").titled(u"Parent"))
-#         folder = create(Builder("folder").titled(u"Delete that").within(parent))
-#         create(
-#             Builder("folder").titled(u"Child of folder to be deleted").within(folder)
-#         )
+    def test_marks_trashed_page_as_trashed_and_restorable(self):
 
-#         with freeze(datetime(2016, 12, 15, 17, 9)):
-#             Trasher(folder).trash()
+        setRoles(self.portal, TEST_USER_ID, ["Contributor"])
+        
+        page = api.content.create(
+            container=self.portal,
+            type="Document",
+            id="foo",
+            title="Foo",
+        )
 
-#         transaction.commit()
-#         browser.login().open().click_on("Trash")
-#         self.assertEquals("trash", plone.view())
+        self.assert_provides(page, None)
 
-#         self.assertEquals(
-#             [
-#                 {
-#                     "Last modified": "Dec 15, 2016 05:09 PM",
-#                     "Type": self.type_label,
-#                     "Title": "Delete that http://nohost/plone/parent/delete-that",
-#                     "": "",
-#                 }
-#             ],
-#             browser.css(".trash-table").first.dicts(),
-#         )
+        Trasher(page).trash()
+        self.assert_provides(page, IRestorable, ITrashed)
 
-#     @browsing
-#     def test_restore_trashed_content(self, browser):
-#         self.grant("Site Administrator")
+    def test_marks_children_of_trashed_folder_only_as_trashed(self):
 
-#         folder = create(Builder("folder").titled(u"My Folder"))
-#         with freeze(datetime(2011, 1, 1)):
-#             Trasher(folder).trash()
+        setRoles(self.portal, TEST_USER_ID, ["Contributor"])
 
-#         self.assert_provides(folder, IRestorable, ITrashed)
+        folder = api.content.create(
+            container=self.portal,
+            type="Folder",
+            id="foo",
+            title="Foo",
+        )
+        subfolder = api.content.create(
+            container=folder, type="Folder", id="bar", title="Bar"
+        )
 
-#         transaction.commit()
-#         browser.login().open().click_on("Trash")
+        self.assert_provides(folder, None)
+        self.assert_provides(subfolder, None)
 
-#         self.assertEquals(
-#             [
-#                 {
-#                     "Last modified": "Jan 01, 2011 12:00 AM",
-#                     "Type": self.type_label,
-#                     "Title": "My Folder http://nohost/plone/my-folder",
-#                     "": "",
-#                 }
-#             ],
-#             browser.css(".trash-table").first.dicts(),
-#         )
+        Trasher(folder).trash()
+        self.assert_provides(folder, IRestorable, ITrashed)
+        self.assert_provides(subfolder, ITrashed)
 
-#         browser.css(".trash-table").find("Restore").first.click()
-#         statusmessages.assert_message('The content "My Folder" has been restored.')
-#         self.assertEqual(folder.absolute_url(), browser.url)
+    def test_catalog_is_updated_when_trashing_content(self):
 
-#         transaction.begin()
-#         self.assert_provides(folder, None)
+        setRoles(self.portal, TEST_USER_ID, ["Contributor"])
 
-#     @browsing
-#     def test_restore_redirects_to_view_for_files(self, browser):
-#         self.grant("Site Administrator")
-#         doc = create(Builder("file").with_dummy_content())
-#         Trasher(doc).trash()
-#         transaction.commit()
-#         browser.login().open(view="trash").click_on("Restore")
-#         self.assertEquals(
-#             "http://nohost/plone/{}/view".format(doc.getId()), browser.url
-#         )
+        folder = api.content.create(
+            container=self.portal,
+            type="Folder",
+            id="foo",
+            title="Foo",
+        )
+        subfolder = api.content.create(
+            container=folder, type="Folder", id="bar", title="Bar"
+        )
 
-#     @browsing
-#     def test_error_message_when_restore_not_allowed(self, browser):
-#         self.grant("Site Administrator")
+        self.assertFalse(self.get_catalog_indexdata(folder).get("trashed"))
+        self.assertNotIn(
+            ITrashed.__identifier__,
+            self.get_catalog_indexdata(folder).get("object_provides"),
+        )
 
-#         parent = create(Builder("folder").titled(u"Parent"))
-#         folder = create(Builder("folder").titled(u"My Folder").within(parent))
-#         Trasher(folder).trash()
-#         parent.manage_permission("Add portal content", roles=[], acquire=False)
-#         transaction.commit()
+    
+        self.assertNotIn(
+            IRestorable.__identifier__,
+            self.get_catalog_indexdata(folder).get("object_provides"),
+        )
 
-#         browser.login().open().click_on("Trash").click_on("Restore")
-#         statusmessages.assert_message(
-#             'You are not allowed to restore "My Folder".'
-#             " You may need to change the workflow state of the parent content."
-#         )
+        self.assertFalse(self.get_catalog_indexdata(subfolder).get("trashed"))
+        self.assertNotIn(
+            ITrashed.__identifier__,
+            self.get_catalog_indexdata(subfolder).get("object_provides"),
+        )
 
-#         transaction.begin()
-#         self.assert_provides(folder, IRestorable, ITrashed)
+        self.assertNotIn(
+            IRestorable.__identifier__,
+            self.get_catalog_indexdata(subfolder).get("object_provides"),
+        )
 
-#     @browsing
-#     def test_error_message_when_parent_is_trashed(self, browser):
-#         self.grant("Site Administrator")
+        Trasher(folder).trash()
+        self.assertTrue(self.get_catalog_indexdata(folder).get("trashed"))
+        self.assertIn(
+            ITrashed.__identifier__,
+            self.get_catalog_indexdata(folder).get("object_provides"),
+        )
 
-#         parent = create(Builder("folder").titled(u"Parent"))
-#         child = create(Builder("folder").titled(u"Child").within(parent))
-#         Trasher(parent).trash()
-#         Trasher(child).trash()
-#         self.assert_provides(parent, IRestorable, ITrashed)
-#         self.assert_provides(child, IRestorable, ITrashed)
-#         transaction.commit()
+        self.assertIn(
+            IRestorable.__identifier__,
+            self.get_catalog_indexdata(folder).get("object_provides"),
+        )
 
-#         browser.login().open().click_on("Trash")
-#         table = browser.css("table.trash-table")
-#         table.xpath('//*[text()="Child"]').first.parent("tr").find("Restore").click()
+        self.assertTrue(self.get_catalog_indexdata(subfolder).get("trashed"))
+        self.assertIn(
+            ITrashed.__identifier__,
+            self.get_catalog_indexdata(subfolder).get("object_provides"),
+        )
 
-#         statusmessages.assert_message(
-#             '"Child" cannot be restored because the parent container "Parent" is also'
-#             " trashed. You need to restore the parent first."
-#         )
+        self.assertNotIn(
+            IRestorable.__identifier__,
+            self.get_catalog_indexdata(subfolder).get("object_provides"),
+        )
 
-#         transaction.begin()
-#         self.assert_provides(parent, IRestorable, ITrashed)
-#         self.assert_provides(child, IRestorable, ITrashed)
+    def test_restorable_content_can_be_restored(self):
 
-#     @browsing
-#     def test_empy_trash(self, browser):
-#         self.grant("Site Administrator")
+        setRoles(self.portal, TEST_USER_ID, ["Site Administrator"])
 
-#         Trasher(create(Builder("folder").titled(u"Foo"))).trash()
-#         self.assertIn("foo", self.portal.objectIds())
-#         transaction.commit()
+        folder = api.content.create(
+            container=self.portal,
+            type="Folder",
+            id="foo",
+            title="Foo",
+        )
+        self.assert_provides(folder, None)
 
-#         browser.login().open().click_on("Trash")
-#         self.assertEquals("Trash", plone.first_heading())
+        Trasher(folder).trash()
+        self.assert_provides(folder, IRestorable, ITrashed)
 
-#         browser.click_on("Clean trash")
-#         self.assertEquals(
-#             "Are you sure you want to permanently delete all objects in the trash?",
-#             plone.first_heading(),
-#         )
-#         self.assertIn("foo", self.portal.objectIds())
+        Trasher(folder).restore()
+        self.assert_provides(folder, None)
 
-#         browser.click_on("Cancel")
-#         self.assertEquals("Trash", plone.first_heading())
-#         self.assertIn("foo", self.portal.objectIds())
+    def test_children_are_restored_correctly(self):
 
-#         browser.click_on("Clean trash").click_on("Delete")
-#         self.assertEquals("Trash", plone.first_heading())
-#         self.assertNotIn("foo", self.portal.objectIds())
+        setRoles(self.portal, TEST_USER_ID, ["Site Administrator"])
 
-#     @browsing
-#     def test_empty_trash_button_not_visible_without_permission(self, browser):
-#         self.grant("Site Administrator")
-#         browser.login().open().click_on("Trash")
+        folder = api.content.create(
+            container=self.portal,
+            type="Folder",
+            id="foo",
+            title="Foo",
+        )
+        subfolder = api.content.create(
+            container=folder, type="Folder", id="bar", title="Bar"
+        )
+        self.assert_provides(folder, None)
+        self.assert_provides(subfolder, None)
 
-#         self.assertTrue(browser.find("Clean trash"))
+        Trasher(folder).trash()
+        self.assert_provides(folder, IRestorable, ITrashed)
+        self.assert_provides(subfolder, ITrashed)
 
-#         self.portal.manage_permission("Clean trash", roles=[], acquire=False)
-#         transaction.commit()
+        Trasher(folder).restore()
+        self.assert_provides(folder, None)
+        self.assert_provides(subfolder, None)
 
-#         browser.reload()
-#         self.assertFalse(browser.find("Clean trash"))
+    def test_catalog_is_updated_when_restoring_content(self):
 
-#     @browsing
-#     def test_empty_trash_protected_by_permission(self, browser):
-#         self.grant("Site Administrator")
-#         browser.login().open().click_on("Trash")
+        setRoles(self.portal, TEST_USER_ID, ["Site Administrator"])
 
-#         browser.click_on("Clean trash")
+        folder = api.content.create(
+            container=self.portal,
+            type="Folder",
+            id="foo",
+            title="Foo",
+        )
+        subfolder = api.content.create(
+            container=folder, type="Folder", id="bar", title="Bar"
+        )
 
-#         self.portal.manage_permission("Clean trash", roles=[], acquire=False)
-#         transaction.commit()
+        self.assertFalse(self.get_catalog_indexdata(folder).get("trashed"))
+        self.assertNotIn(
+            ITrashed.__identifier__,
+            self.get_catalog_indexdata(folder).get("object_provides"),
+        )
+        self.assertNotIn(
+            IRestorable.__identifier__,
+            self.get_catalog_indexdata(folder).get("object_provides"),
+        )
 
-#         with browser.expect_unauthorized():
-#             browser.click_on("Delete")
+        self.assertFalse(self.get_catalog_indexdata(subfolder).get("trashed"))
+        self.assertNotIn(
+            ITrashed.__identifier__,
+            self.get_catalog_indexdata(subfolder).get("object_provides"),
+        )
+        self.assertNotIn(
+            IRestorable.__identifier__,
+            self.get_catalog_indexdata(subfolder).get("object_provides"),
+        )
 
-#     @browsing
-#     def test_empty_trash_when_parent_and_child_are_both_trashed(self, browser):
-#         """Regression test: when trying to delete a child but the parent was deleted
-#         bevore, an exception is raised.
-#         Solution: do not delete children and parents in the same set; just delete parents,
-#         which is recursive anyway.
-#         """
-#         self.grant("Site Administrator")
+        Trasher(folder).trash()
+        self.assertTrue(self.get_catalog_indexdata(folder).get("trashed"))
+        self.assertIn(
+            ITrashed.__identifier__,
+            self.get_catalog_indexdata(folder).get("object_provides"),
+        )
+        self.assertIn(
+            IRestorable.__identifier__,
+            self.get_catalog_indexdata(folder).get("object_provides"),
+        )
 
-#         parent = create(Builder("folder").titled(u"Parent"))
-#         child = create(Builder("folder").titled(u"Child").within(parent))
+        self.assertTrue(self.get_catalog_indexdata(subfolder).get("trashed"))
+        self.assertIn(
+            ITrashed.__identifier__,
+            self.get_catalog_indexdata(subfolder).get("object_provides"),
+        )
+        self.assertNotIn(
+            IRestorable.__identifier__,
+            self.get_catalog_indexdata(subfolder).get("object_provides"),
+        )
 
-#         Trasher(child).trash()
-#         Trasher(parent).trash()
-#         transaction.commit()
+        Trasher(folder).restore()
+        self.assertFalse(self.get_catalog_indexdata(folder).get("trashed"))
+        self.assertNotIn(
+            ITrashed.__identifier__,
+            self.get_catalog_indexdata(folder).get("object_provides"),
+        )
+        self.assertNotIn(
+            IRestorable.__identifier__,
+            self.get_catalog_indexdata(folder).get("object_provides"),
+        )
 
-#         browser.login().open().click_on("Trash")
-#         self.assertEquals("Trash", plone.first_heading())
+        self.assertFalse(self.get_catalog_indexdata(subfolder).get("trashed"))
+        self.assertNotIn(
+            ITrashed.__identifier__,
+            self.get_catalog_indexdata(subfolder).get("object_provides"),
+        )
+        self.assertNotIn(
+            IRestorable.__identifier__,
+            self.get_catalog_indexdata(subfolder).get("object_provides"),
+        )
 
-#         self.assertIn("parent", self.portal.objectIds())
-#         browser.click_on("Clean trash").click_on("Delete")
-#         self.assertNotIn("parent", self.portal.objectIds())
+    def test_cannot_restore_content_when_not_trashed(self):
 
-#     @browsing
-#     def test_empty_trash_event_if_user_has_insufficient_permissions_on_the_item(
-#         self, browser
-#     ):
-#         self.grant("Site Administrator")
+        setRoles(self.portal, TEST_USER_ID, ["Site Administrator"])
 
-#         folder = create(Builder("folder").within(create(Builder("folder"))))
-#         parent = folder.aq_parent
-#         folder_id = folder.getId()
+        folder = api.content.create(
+            container=self.portal,
+            type="Folder",
+            id="foo",
+            title="Foo",
+        )
 
-#         parent.manage_delObjects([folder_id])
-#         folder.manage_permission(
-#             "Delete portal content", roles=["Manager"], acquire=False
-#         )
-#         transaction.commit()
+        with self.assertRaises(NotRestorable):
+            Trasher(folder).restore()
 
-#         browser.login().open().click_on("Trash")
-#         browser.click_on("Clean trash").click_on("Delete")
+    def test_cannot_restore_content_when_parent_is_trashed(self):
 
-#         self.assertNotIn(folder_id, parent)
+        setRoles(self.portal, TEST_USER_ID, ["Site Administrator"])
 
-#     @browsing
-#     def test_delete_single_trashed_object(self, browser):
-#         self.grant("Site Administrator")
+        folder = api.content.create(
+            container=self.portal,
+            type="Folder",
+            id="foo",
+            title="Foo",
+        )
+        subfolder = api.content.create(
+            container=folder, type="Folder", id="bar", title="Bar"
+        )
 
-#         foo = create(Builder("folder").titled(u"Foo"))
-#         create(Builder("folder").titled(u"Foo1").within(foo))
-#         bar = create(Builder("folder").titled(u"Bar"))
-#         create(Builder("folder").titled(u"Bar1").within(bar))
+        Trasher(folder).trash()
 
-#         self.assertIn(foo.getId(), self.portal)
-#         self.assertIn(bar.getId(), self.portal)
+        with self.assertRaises(NotRestorable):
+            Trasher(subfolder).restore()
 
-#         self.portal.manage_delObjects([foo.getId(), bar.getId()])
-#         transaction.commit()
 
-#         browser.login().open().click_on("Trash")
-#         self.assertEqual(["Bar", "Foo"], browser.css(".trash-table strong").text)
+    def test_cannot_restore_content_when_parent_was_trashed_earlier(self):
+        
+        setRoles(self.portal, TEST_USER_ID, ["Site Administrator"])
 
-#         foo_row = browser.css("strong:contains(Foo)").first.parent("tr")
-#         foo_row.find("Delete permanently").click()
+        folder = api.content.create(
+            container=self.portal,
+            type="Folder",
+            id="foo",
+            title="Foo",
+        )
+        subfolder = api.content.create(
+            container=folder, type="Folder", id="bar", title="Bar"
+        )
 
-#         self.assertEqual(["Bar"], browser.css(".trash-table strong").text)
-#         transaction.begin()
+        Trasher(subfolder).trash()
+        Trasher(folder).trash()
 
-#         self.assertNotIn(foo.getId(), self.portal)
-#         self.assertIn(bar.getId(), self.portal)
+        with self.assertRaises(NotRestorable):
+            Trasher(subfolder).restore()
 
-#     @property
-#     def type_label(self):
-#         if self.is_dexterity and not IS_PLONE_5:
-#             return "dxfolder"
-#         else:
-#             return "Folder"
+    def test_is_restorable_when_trashed(self):
+
+        setRoles(self.portal, TEST_USER_ID, ["Site Administrator"])
+
+        folder = api.content.create(
+            container=self.portal,
+            type="Folder",
+            id="foo",
+            title="Foo",
+        )
+
+        self.assertFalse(Trasher(folder).is_restorable())
+
+        Trasher(folder).trash()
+        self.assertTrue(Trasher(folder).is_restorable())
+
+    def test_not_restorable_when_parent_is_trashed_too(self):
+
+        setRoles(self.portal, TEST_USER_ID, ["Site Administrator"])
+
+        folder = api.content.create(
+            container=self.portal,
+            type="Folder",
+            id="foo",
+            title="Foo",
+        )
+        subfolder = api.content.create(
+            container=folder, type="Folder", id="bar", title="Bar"
+        )
+
+        self.assertFalse(Trasher(folder).is_restorable())
+        self.assertFalse(Trasher(subfolder).is_restorable())
+
+        Trasher(subfolder).trash()
+        self.assertFalse(Trasher(folder).is_restorable())
+        self.assertTrue(Trasher(subfolder).is_restorable())
+
+        Trasher(folder).trash()
+        self.assertTrue(Trasher(folder).is_restorable())
+        self.assertFalse(Trasher(subfolder).is_restorable())
+
+
+    def test_trashing_and_restoring_parent_of_a_trashed_content_does_not_influence_child(
+        self,
+    ):
+        """
+        Given a subpage is trashed.
+        When the parent page is also trashed, and later restored, the subpage should still
+        be trashed.
+        The subpage should also stay restorable.
+        """
+        setRoles(self.portal, TEST_USER_ID, ["Site Administrator"])
+
+        folder = api.content.create(
+            container=self.portal,
+            type="Folder",
+            id="foo",
+            title="Foo",
+        )
+        bar = api.content.create(
+            container=folder, type="Folder", id="bar", title="Bar"
+        )
+
+        self.assert_provides(folder, None)
+        self.assert_provides(bar, None)
+
+        Trasher(folder).trash()
+        self.assert_provides(folder, ITrashed, IRestorable)
+        self.assert_provides(bar, ITrashed)
+
+        Trasher(folder).restore()
+        self.assert_provides(folder, None)
+        self.assert_provides(bar, None)
+
+    def test_is_restorable_respectsIIsRestoreAllowedAdapter(self):
+        response = {"allowed": True, "called": 0}
+
+        setRoles(self.portal, TEST_USER_ID, ["Site Administrator"])
+
+        folder = api.content.create(
+            container=self.portal,
+            type="Folder",
+            id="foo",
+            title="Foo",
+        )
+
+        Trasher(folder).trash()
+
+        @implementer(IIsRestoreAllowedAdapter)
+        @adapter(Interface, Interface)
+        def is_restore_allowed(context, request):
+            response["called"] += 1
+            return response["allowed"]
+
+        getSiteManager().registerAdapter(is_restore_allowed)
+
+        self.assertTrue(Trasher(folder).is_restorable())
+        response["allowed"] = False
+        self.assertFalse(Trasher(folder).is_restorable())
+        self.assertEqual(2, response["called"])
+
+    def test_events_are_fired(self):
+
+        setRoles(self.portal, TEST_USER_ID, ["Site Administrator"])
+        
+        folder = api.content.create(
+            container=self.portal,
+            type="Folder",
+            id="foo",
+            title="Foo",
+        )
+        
+        fired_events = []
+        registerHandler = self.portal.getSiteManager().registerHandler
+
+        @registerHandler
+        @adapter(Interface, IBeforeObjectTrashedEvent)
+        def before_trashing(object, event):
+            self.assertEqual(folder, object)
+            self.assertEqual(folder, event.object)
+            self.assertFalse(ITrashed.providedBy(object))
+            fired_events.append(type(event).__name__)
+
+        @registerHandler
+        @adapter(Interface, IObjectTrashedEvent)
+        def after_trashing(object, event):
+            self.assertEqual(folder, object)
+            self.assertEqual(folder, event.object)
+            self.assertTrue(ITrashed.providedBy(object))
+            fired_events.append(type(event).__name__)
+
+        @registerHandler
+        @adapter(Interface, IBeforeObjectRestoredEvent)
+        def before_restoring(object, event):
+            self.assertEqual(folder, object)
+            self.assertEqual(folder, event.object)
+            self.assertTrue(ITrashed.providedBy(object))
+            fired_events.append(type(event).__name__)
+
+        @registerHandler
+        @adapter(Interface, IObjectRestoredEvent)
+        def after_restoring(object, event):
+            self.assertEqual(folder, object)
+            self.assertEqual(folder, event.object)
+            self.assertFalse(ITrashed.providedBy(object))
+            fired_events.append(type(event).__name__)
+
+        Trasher(folder).trash()
+        self.assertEquals(
+            ["BeforeObjectTrashedEvent", "ObjectTrashedEvent"], fired_events
+        )
+        fired_events[:] = []
+        Trasher(folder).restore()
+        self.assertEquals(
+            ["BeforeObjectRestoredEvent", "ObjectRestoredEvent"], fired_events
+        )
+
+
+class TestDefaultIsRestoreAllowedAdapter(unittest.TestCase):
+    layer = FTW_TRASH_FUNCTIONAL_TESTING
+        
+    def setUp(self):
+        """Custom shared utility setup for tests."""
+        self.portal = self.layer["portal"]
+    
+    def test_requires_add_permission_on_parent(self):
+        setRoles(self.portal, TEST_USER_ID, ["Contributor"])
+
+        parent = api.content.create(
+            container=self.portal,
+            type="Folder",
+            id="foo",
+            title="Foo",
+        )
+        child = api.content.create(
+            container=parent, type="Folder", id="bar", title="Bar"
+        )
+
+        parent.manage_permission("Add portal content", roles=[], acquire=False)
+        self.assertFalse(
+            getMultiAdapter((child, self), IIsRestoreAllowedAdapter)
+        )
+
+        parent.manage_permission(
+            "Add portal content", roles=["Contributor"], acquire=False
+        )
+        self.assertTrue(
+            getMultiAdapter((child, self), IIsRestoreAllowedAdapter)
+        )
