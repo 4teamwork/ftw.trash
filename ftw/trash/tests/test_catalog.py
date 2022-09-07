@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Setup tests for this package."""
-from ftw.trash.testing import FTW_TRASH_INTEGRATION_TESTING  # noqa: E501
+from ftw.trash.testing import FTW_TRASH_INTEGRATION_TESTING  
 from ftw.trash.trasher import Trasher
 
 from plone import api
