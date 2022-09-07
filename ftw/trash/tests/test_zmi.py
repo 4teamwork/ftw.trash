@@ -1,5 +1,4 @@
 from ftw.trash.testing import FTW_TRASH_FUNCTIONAL_TESTING
-
 from ftw.trash.trasher import Trasher
 from plone import api
 from plone.app.testing import SITE_OWNER_NAME
@@ -67,6 +66,7 @@ class TestZMI(unittest.TestCase):
             id="trashed",
             title="Trashed Folder",
         )
+
         Trasher(trashed).trash()
         self.assertEqual(["normal", "trashed"], folder.objectIds())
         transaction.commit()
