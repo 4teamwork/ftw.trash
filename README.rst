@@ -155,7 +155,8 @@ Development
 
 5. Add a ``mx.ini`` file
 
-  ::    
+  :: 
+  
         [collective.deletepermission]
         url = git@github.com:4teamwork/collective.deletepermission.git
         branch = python3
