@@ -88,12 +88,12 @@ msgstr "Der Inhalt \"${title}\" ist im Papierkorb."
 #. Default: "Actions"
 #: ./browser/templates/trash.pt:35
 msgid "trashview_actions"
-msgstr ""
+msgstr "Aktionen für die Papierkorbansicht"
 
 #. Default: "Your trash can is empty"
 #: ./browser/templates/trash.pt:28
 msgid "trashview_empty_trash"
-msgstr ""
+msgstr "Papierkorb anzeigen Papierkorb leeren"
 
 #. Default: "Last modified"
 #: ./browser/templates/trash.pt:32
