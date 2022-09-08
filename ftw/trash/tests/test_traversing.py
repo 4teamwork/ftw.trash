@@ -10,6 +10,7 @@ from plone.testing.zope import Browser
 import transaction
 import unittest
 
+
 class TestTraversing(unittest.TestCase):
     layer = FTW_TRASH_FUNCTIONAL_TESTING
 
@@ -30,54 +31,47 @@ class TestTraversing(unittest.TestCase):
         )
 
     def test_browsing_trashed_content_raises_404(self):
-
-        setRoles(self.portal, TEST_USER_ID, ["Contributor"])
-        
-        parent = api.content.create(
+        setRoles(self.portal, TEST_USER_ID, ["Site Administrator"])
+        top = api.content.create(
             container=self.portal,
             type="Folder",
-            id="parent",
-            title="Parent",
-        )
-        folder = api.content.create(
-            container=parent, 
-            type="Folder", 
-            id="foo", 
-            title="Foo"
-        )
-        subfolder = api.content.create(
-            container=parent, 
-            type="Folder", 
-            id="bar", 
-            title="Bar"
+            id="top",
+            title="Top Folder",
         )
 
-        self.browser.open(self.portal_url + "/parent")
-        self.browser.open(self.portal_url + "/folder")
-        self.browser.open(self.portal_url + "/subfolder")
-
-        Trasher(folder).trash()
+        api.content.create(container=top, type="Folder", id="foo", title="Foo")
+        api.content.create(container=top, type="Folder", id="bar", title="Bar")
         transaction.commit()
 
-        with self.browser.expect_http_error(404):
-            self.browser.open(self.portal_url + "/folder")
+        self.browser.open(self.portal_url + "/top")
+        self.browser.open(self.portal_url + "/top/foo")
+        self.browser.open(self.portal_url + "/top/bar")
 
-        with self.browser.expect_http_error(404):
-            self.browser.open(self.portal_url + "/subfolder")
+        Trasher(top).trash()
+        transaction.commit()
+
+        self.browser.handleErrors = True
+
+        self.browser.open(self.portal_url + "/top/foo")
+        assert 'The content "Foo" is trashed.' in self.browser.contents
+
+        self.browser.open(self.portal_url + "/top/bar")
+        assert 'The content "Bar" is trashed.' in self.browser.contents
 
     def test_allow_Manager_to_browse_trashed_content_with_status_message(self):
-        setRoles(self.portal, TEST_USER_ID, ["Manager"])
-        folder = api.content.create(
+        setRoles(self.portal, TEST_USER_ID, ["Site Administrator"])
+
+        top = api.content.create(
             container=self.portal,
             type="Folder",
-            id="parent",
+            id="top",
             title="Fancy Folder",
         )
-
-        self.browser.open(self.portal_url + "/folder")
-
-        Trasher(folder).trash()
         transaction.commit()
-        self.browser.open(self.portal_url + "/folder")
-        assert('The content "Fancy Folder" is trashed.' in self.browser.content)
-    
+        self.browser.open(self.portal_url + "/top")
+
+        Trasher(top).trash()
+        transaction.commit()
+        self.browser.open(self.portal_url + "/top")
+
+        assert 'The content "Fancy Folder" is trashed.' in self.browser.contents
