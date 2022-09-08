@@ -9,7 +9,8 @@
   <metal:block fill-slot="style_slot">
     <style>
     table,th,td {
-      border:3px solid black;
+      border:1px solid black;
+      padding: 5px;
     }
       table.listing td div {
         word-break: break-word;
@@ -18,23 +19,26 @@
   </metal:block>
 
   <div metal:fill-slot="main">
-    <metal:main-macro define-macro="main">
+    <metal:main-macro define-macro="main"
+          tal:define="items view/get_trashed_items;
+                      num_items python: len(list(items))">
 
       <h1 class="documentFirstHeading" i18n:translate="">Trash</h1>
 
-      <table class="listing trash-table">
+      <p tal:condition="python: num_items == 0" i18n:translate="trashview_empty_trash">Your trash can is empty</p>
+      <table class="listing trash-table" tal:condition="python: num_items > 0">
         <thead>
           <tr>
             <th i18n:translate="trashview_last_modified">Last modified</th>
             <th i18n:translate="trashview_type">Type</th>
             <th i18n:translate="trashview_title">Title</th>
-            <th></th>
+            <th i18n:translate="trashview_actions">Actions</th>
           </tr>
         </thead>
 
         <tbody>
 
-          <tr tal:repeat="item view/get_trashed_items">
+          <tr tal:repeat="item items">
             <td tal:content="item/modified" />
             <td tal:content="item/type" i18n:translate="" i18n:domain="plone" />
             <td>
@@ -63,7 +67,7 @@
 
       </table>
 
-      <div tal:condition="view/can_clean_trash">
+      <div tal:condition="python: view.can_clean_trash and num_items > 0">
         <a tal:attributes="href string:${request/URL}/confirm_clean_trash"
            class="button destructive"
            i18n:translate="">Clean trash</a>

@@ -186,8 +186,9 @@ class TrashView(BrowserView):
             "sort_order": "reverse",
             "sort_limit": self.max_amount_of_items,
         }
-
-        return map(self._brain_to_item, catalog(query)[: self.max_amount_of_items])
+        return [
+            self._brain_to_item(i) for i in catalog(query)[: self.max_amount_of_items]
+        ]
 
     def _brain_to_item(self, brain):
         return {
