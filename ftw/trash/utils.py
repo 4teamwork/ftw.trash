@@ -2,13 +2,13 @@ import inspect
 import os
 from contextlib import contextmanager
 
-from Products.CMFCore.utils import getToolByName
+from plone.api.portal import get_tool
 from zc.relation.catalog import Catalog
 from zope.component.hooks import getSite
 
 
 def is_trash_profile_installed():
-    portal_setup = getToolByName(getSite(), "portal_setup")
+    portal_setup = get_tool("portal_setup")
     return portal_setup.getLastVersionForProfile("ftw.trash:default") != "unknown"
 
 

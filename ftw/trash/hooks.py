@@ -1,6 +1,6 @@
 import logging
 
-from Products.CMFCore.utils import getToolByName
+from plone.api.portal import get_tool
 
 PROFILE_ID = "profile-ftw.trash:default"
 INDEXES = (("trashed", "FieldIndex"),)
@@ -34,10 +34,10 @@ def add_catalog_indexes(context, logger=None):
     # code makes this method usable as upgrade step as well.  Note that
     # this silently does nothing when there is no catalog.xml, so it
     # is quite safe.
-    setup = getToolByName(context, "portal_setup")
+    setup = get_tool("portal_setup")
     setup.runImportStepFromProfile(PROFILE_ID, "catalog")
 
-    catalog = getToolByName(context, "portal_catalog")
+    catalog = get_tool("portal_catalog")
     indexes = catalog.indexes()
     # Specify the indexes you want, with ('index_name', 'index_type')
     wanted = INDEXES
@@ -53,7 +53,7 @@ def add_catalog_indexes(context, logger=None):
 
 
 def remove_catalog_indexes(context):
-    catalog = getToolByName(context, "portal_catalog")
+    catalog = get_tool("portal_catalog")
     indexes = catalog.indexes()
 
     for name, meta_type in INDEXES:

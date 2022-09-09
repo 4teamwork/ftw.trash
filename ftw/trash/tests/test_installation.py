@@ -5,7 +5,6 @@ from ftw.trash.interfaces import (
     ITrashed,
 )
 
-from Products.CMFCore.utils import getToolByName
 from plone import api
 from plone.app.testing import TEST_USER_ID, setRoles
 from plone.app.testing import TEST_USER_ID, setRoles
@@ -31,7 +30,7 @@ class TestTrashNotInstalled(unittest.TestCase):
 
     def test_content_is_deleted_when_trash_not_installed(self):
 
-        catalog = getToolByName(self.layer["portal"], "portal_catalog")
+        catalog = api.portal.get_tool("portal_catalog")
         
         setRoles(self.portal, TEST_USER_ID, ["Contributor"])
 

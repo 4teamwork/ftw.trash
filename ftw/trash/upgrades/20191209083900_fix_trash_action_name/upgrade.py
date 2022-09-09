@@ -6,7 +6,7 @@ class FixTrashActionName(UpgradeStep):
     """
 
     def __call__(self):
-        actions_tool = self.getToolByName("portal_actions")
+        actions_tool = self.get_tool("portal_actions")
         category = actions_tool.get("user")
         old_name = "user_management"
 

@@ -7,7 +7,6 @@ from ftw.trash.trasher import Trasher
 from ftw.trash.utils import filter_children_in_paths
 from plone import api
 from plone.protect import CheckAuthenticator, protect
-from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
@@ -36,7 +35,7 @@ class TrashView(BrowserView):
     @protect(CheckAuthenticator)
     def restore(self, REQUEST, uuid):
         """Restore an item by uid."""
-        catalog = getToolByName(self.context, "portal_catalog")
+        catalog = api.portal.get_tool("portal_catalog")
         brains = catalog({"UID": uuid, "trashed": True})
         if len(brains) != 1:
             raise BadRequest()
@@ -97,7 +96,7 @@ class TrashView(BrowserView):
     @protect(CheckAuthenticator)
     def delete_permanently(self, REQUEST, uuid):
         """Permanently delete a trashed item by uuid."""
-        catalog = getToolByName(self.context, "portal_catalog")
+        catalog = api.portal.get_tool("portal_catalog")
         brains = catalog({"UID": uuid, "trashed": True})
         if len(brains) != 1:
             raise BadRequest()
@@ -146,7 +145,7 @@ class TrashView(BrowserView):
             if not getSecurityManager().checkPermission("Clean trash", self.context):
                 raise Unauthorized()
 
-            catalog = getToolByName(self.context, "portal_catalog")
+            catalog = api.portal.get_tool("portal_catalog")
             query = {"object_provides": IRestorable.__identifier__, "trashed": True}
 
             paths_to_delete = filter_children_in_paths(
@@ -178,7 +177,7 @@ class TrashView(BrowserView):
             raise BadRequest()
 
     def get_trashed_items(self):
-        catalog = getToolByName(self.context, "portal_catalog")
+        catalog = api.portal.get_tool("portal_catalog")
         query = {
             "object_provides": IRestorable.__identifier__,
             "trashed": True,

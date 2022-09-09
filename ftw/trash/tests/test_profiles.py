@@ -1,6 +1,6 @@
 from ftw.trash.testing import FTW_TRASH_FUNCTIONAL_TESTING
 
-from Products.CMFCore.utils import getToolByName
+from plone.api.portal import get_tool
 import unittest
 
 
@@ -12,7 +12,7 @@ class TestDefaultProfile(unittest.TestCase):
         self.portal = self.layer["portal"]
         
     def test_installed(self):
-        portal_setup = getToolByName(self.portal, "portal_setup")
+        portal_setup = get_tool("portal_setup")
         version = portal_setup.getLastVersionForProfile("ftw.trash:default")
         self.assertNotEqual(version, None)
         self.assertNotEqual(version, "unknown")
