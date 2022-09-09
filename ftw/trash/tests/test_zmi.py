@@ -1,5 +1,4 @@
 from ftw.trash.testing import FTW_TRASH_FUNCTIONAL_TESTING
-
 from ftw.trash.trasher import Trasher
 from plone import api
 from plone.app.testing import SITE_OWNER_NAME
@@ -41,7 +40,7 @@ class TestZMI(unittest.TestCase):
         self.assertTrue("<h1>Bar</h1>" in self.browser.contents)
 
         self.browser.open(f"{self.portal_url}/foo/manage_main")
-        self.assertEquals(["bar"], self.browser.getControl(name="ids:list").options)
+        self.assertEqual(["bar"], self.browser.getControl(name="ids:list").options)
         self.browser.getControl(name="ids:list").getControl("bar").selected = True
         self.browser.getControl(name="manage_delObjects:method").click()
         self.assertIn("There are currently no items in", self.browser.contents)
@@ -67,6 +66,7 @@ class TestZMI(unittest.TestCase):
             id="trashed",
             title="Trashed Folder",
         )
+
         Trasher(trashed).trash()
         self.assertEqual(["normal", "trashed"], folder.objectIds())
         transaction.commit()

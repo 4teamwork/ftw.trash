@@ -129,13 +129,64 @@ Development
 
 1. Fork this repo
 2. Clone your fork
-3. Shell: ``ln -s development.cfg buildout.cfg``
-4. Shell: ``python bootstrap.py``
-5. Shell: ``bin/buildout``
+3. Add a ``requirements.txt`` file
+
+  ::
+
+        -c constraints.txt
+
+        Plone
+        # List of add-ons that are needed.
+        ftw.trash
+        collective.deletepermission
+        ftw.profilehook
+        ftw.upgrade
+
+4. Add a ``constraints.txt`` file
+  
+  ::
+
+        -c https://dist.plone.org/release/6.0.0a6/constraints.txt
+
+        # constraints of add-ons
+        collective.deletepermission
+        ftw.profilehook
+        ftw.trash
+
+5. Add a ``mx.ini`` file
+
+  :: 
+  
+        [collective.deletepermission]
+        url = git@github.com:4teamwork/collective.deletepermission.git
+        branch = python3
+        extras = test
+
+        [ftw.profilehook]
+        url = git@github.com:4teamwork/ftw.profilehook.git
+        branch = python3
+
+        [ftw.trash]
+        url = git@github.com:4teamwork/ftw.trash.git
+        branch = python3
+        extras = test
+
+6. Install mxdev and run the following command
+
+  ::
+
+        pip install mxdev
+        mxdev -c mx.ini
+  
+7. Install the new requirements.txt file
+
+  ::
+
+        pip install -r requirements-mxdev.txt
 
 Run ``bin/test`` to test your changes.
 
-Or start an instance by running ``bin/instance fg``.
+Or start an instance by running ``runwsgi ./etc/zope.ini``.
 
 
 Links

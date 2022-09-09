@@ -1,4 +1,4 @@
-*.mo
+#*.mo  "couldn't get this to work automatically so created it manually."
 *.pyc
 /*.egg-info
 /.installed.cfg

@@ -1,6 +1,10 @@
 Changelog
 =========
-
+1.7.6 (2022-09-07)
+------------------
+- Python 2 - Python 3 port.
+- Added support to plone 6.
+- Updated tests and removed dependencies on ftw.builder.
 
 1.7.5 (unreleased)
 ------------------
