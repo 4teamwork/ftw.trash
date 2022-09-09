@@ -18,11 +18,12 @@ The script accepts buildout command-line options, so you can
 use the -c option to specify an alternate configuration file.
 """
 
+from __future__ import print_function
+
 import os
 import shutil
 import sys
 import tempfile
-
 from optparse import OptionParser
 
 __version__ = '2015-07-01'
@@ -73,7 +74,7 @@ parser.add_option("--setuptools-to-dir",
 
 options, args = parser.parse_args()
 if options.version:
-    print("bootstrap.py version %s" % __version__)
+    print(("bootstrap.py version %s" % __version__))
     sys.exit(0)
 
 
@@ -83,7 +84,7 @@ if options.version:
 try:
     from urllib.request import urlopen
 except ImportError:
-    from urllib2 import urlopen
+    from six.moves.urllib.request import urlopen
 
 ez = {}
 if os.path.exists('ez_setup.py'):
@@ -96,6 +97,7 @@ if not options.allow_site_packages:
     # this will remove them from the path to ensure that incompatible versions
     # of setuptools are not in the path
     import site
+
     # inside a virtualenv, there is no 'getsitepackages'.
     # We can't remove these reliably
     if hasattr(site, 'getsitepackages'):
@@ -115,8 +117,8 @@ if options.setuptools_to_dir is not None:
     setup_args['to_dir'] = options.setuptools_to_dir
 
 ez['use_setuptools'](**setup_args)
-import setuptools
 import pkg_resources
+import setuptools
 
 # This does not (always?) update the default working set.  We will
 # do it.
@@ -188,6 +190,7 @@ if version:
 cmd.append(requirement)
 
 import subprocess
+
 if subprocess.call(cmd) != 0:
     raise Exception(
         "Failed to execute command:\n%s" % repr(cmd)[1:-1])

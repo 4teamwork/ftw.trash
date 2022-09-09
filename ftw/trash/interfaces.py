@@ -1,15 +1,17 @@
-from zope.component.interfaces import IObjectEvent
+from zope.interface.interfaces import IObjectEvent
 from zope.interface import Interface
 
 
+class IFtwTrashLayer(Interface):
+    """Marker interface for testing ftw.trash"""
+
+
 class IRestorable(Interface):
-    """Marker interface for objects which can be restored.
-    """
+    """Marker interface for objects which can be restored."""
 
 
 class ITrashed(Interface):
-    """Marker interface for trashed objects which should no longer appear.
-    """
+    """Marker interface for trashed objects which should no longer appear."""
 
 
 class IIsRestoreAllowedAdapter(Interface):
@@ -20,20 +22,16 @@ class IIsRestoreAllowedAdapter(Interface):
 
 
 class IBeforeObjectTrashedEvent(IObjectEvent):
-    """An object will be trashed.
-    """
+    """An object will be trashed."""
 
 
 class IObjectTrashedEvent(IObjectEvent):
-    """An object has been trashed.
-    """
+    """An object has been trashed."""
 
 
 class IBeforeObjectRestoredEvent(IObjectEvent):
-    """An object will be restored.
-    """
+    """An object will be restored."""
 
 
 class IObjectRestoredEvent(IObjectEvent):
-    """An object has been restored.
-    """
+    """An object has been restored."""

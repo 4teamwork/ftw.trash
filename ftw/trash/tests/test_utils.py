@@ -1,26 +1,23 @@
-from ftw.trash.testing import TRASH_NOT_INSTALLED_FUNCTIONAL
-from ftw.trash.tests import FunctionalTestCase
-from ftw.trash.utils import filter_children_in_paths
-from ftw.trash.utils import is_trash_profile_installed
-from unittest import TestCase
+import unittest
+from ftw.trash.testing import FTW_TRASH_FUNCTIONAL_TESTING
 
 
-class TestUtilsWhenInstalled(FunctionalTestCase):
+from ftw.trash.utils import filter_children_in_paths, is_trash_profile_installed
+
+class TestUtilsWhenInstalled(unittest.TestCase):
+    layer = FTW_TRASH_FUNCTIONAL_TESTING
+
+    def setUp(self):
+        """Custom shared utility setup for tests."""
+        self.portal = self.layer["portal"]
 
     def test_is_trash_profile_installed(self):
         self.assertTrue(is_trash_profile_installed())
 
 
-class TestUtilsWhenNotInstalled(FunctionalTestCase):
-    layer = TRASH_NOT_INSTALLED_FUNCTIONAL
-
-    def test_is_trash_profile_installed(self):
-        self.assertFalse(is_trash_profile_installed())
-
-
-class TestFilterChildrenInPaths(TestCase):
-
+class TestFilterChildrenInPaths(unittest.TestCase):
     def test(self):
-        paths = ['/a/b/c/d', '/a', '/b', '/a/b/c/d/e/f', '/c/a/b/d', '/abab']
-        self.assertEquals(['/a', '/abab', '/b', '/c/a/b/d'],
-                          filter_children_in_paths(paths))
+        paths = ["/a/b/c/d", "/a", "/b", "/a/b/c/d/e/f", "/c/a/b/d", "/abab"]
+        self.assertEquals(
+            ["/a", "/abab", "/b", "/c/a/b/d"], filter_children_in_paths(paths)
+        )

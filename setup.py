@@ -1,7 +1,8 @@
-from setuptools import setup, find_packages
 import os
 
-version = '1.7.5.dev0'
+from setuptools import find_packages, setup
+
+version = '1.7.6.dev0'
 
 tests_require = [
     'ftw.builder',

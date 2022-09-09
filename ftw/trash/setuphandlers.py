@@ -1,17 +1,33 @@
+# -*- coding: utf-8 -*-
 import logging
+from plone import api
+from Products.CMFPlone.interfaces import INonInstallable
+from zope.interface import implementer
 
-from plone.api.portal import get_tool
 
 PROFILE_ID = "profile-ftw.trash:default"
 INDEXES = (("trashed", "FieldIndex"),)
 
 
-def installed(site):
-    add_catalog_indexes(site)
+@implementer(INonInstallable)
+class HiddenProfiles(object):
+    def getNonInstallableProfiles(self):
+        """Hide uninstall profile from site-creation and quickinstaller."""
+        return [
+            "plonetraining.testing:uninstall",
+        ]
 
 
-def uninstalled(site):
-    remove_catalog_indexes(site)
+def post_install(context):
+    """Post install script"""
+
+    add_catalog_indexes(context)
+
+
+def uninstall(context):
+    """Uninstall script"""
+
+    remove_catalog_indexes(context)
 
 
 def add_catalog_indexes(context, logger=None):
@@ -28,16 +44,17 @@ def add_catalog_indexes(context, logger=None):
         # Called as upgrade step: define our own logger.
         logger = logging.getLogger("ftw.trash")
 
+    logger.info(f"Start add_catalog_indexes")
     # Run the catalog.xml step as that may have defined new metadata
     # columns.  We could instead add <depends name="catalog"/> to
     # the registration of our import step in zcml, but doing it in
     # code makes this method usable as upgrade step as well.  Note that
     # this silently does nothing when there is no catalog.xml, so it
     # is quite safe.
-    setup = get_tool("portal_setup")
+    setup = api.portal.get_tool("portal_setup")
     setup.runImportStepFromProfile(PROFILE_ID, "catalog")
 
-    catalog = get_tool("portal_catalog")
+    catalog = api.portal.get_tool("portal_catalog")
     indexes = catalog.indexes()
     # Specify the indexes you want, with ('index_name', 'index_type')
     wanted = INDEXES
@@ -50,12 +67,20 @@ def add_catalog_indexes(context, logger=None):
     if len(indexables) > 0:
         logger.info("Indexing new indexes %s.", ", ".join(indexables))
         catalog.manage_reindexIndex(ids=indexables)
+    logger.info(f"Completed add_catalog_indexes")
 
 
-def remove_catalog_indexes(context):
-    catalog = get_tool("portal_catalog")
+def remove_catalog_indexes(context, logger=None):
+    if logger is None:
+        # Called as upgrade step: define our own logger.
+        logger = logging.getLogger("ftw.trash")
+
+    logger.info(f"Start remove_catalog_indexes")
+    catalog = api.portal.get_tool("portal_catalog")
     indexes = catalog.indexes()
 
     for name, meta_type in INDEXES:
         if name in indexes:
             catalog.delIndex(name)
+            logger.info(f"Delete index {name}")
+    logger.info(f"Completed remove_catalog_indexes")

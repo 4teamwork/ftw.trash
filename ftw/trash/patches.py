@@ -1,10 +1,12 @@
 from ftw.trash.interfaces import ITrashed
 from ftw.trash.trasher import Trasher
-from ftw.trash.utils import called_from_ZMI
-from ftw.trash.utils import is_migrating_plone_site
-from ftw.trash.utils import is_trash_disabled
-from ftw.trash.utils import is_trash_profile_installed
-from ftw.trash.utils import within_link_integrity_check
+from ftw.trash.utils import (
+    called_from_ZMI,
+    is_migrating_plone_site,
+    is_trash_disabled,
+    is_trash_profile_installed,
+    within_link_integrity_check,
+)
 
 
 def contentItems(self, filter=None):
@@ -14,30 +16,30 @@ def contentItems(self, filter=None):
 
 
 def manage_trashObjects(self, ids=None, REQUEST=None):
-    """Marks objects as trashed.
-    """
+    """Marks objects as trashed."""
     if ids is None:
         ids = []
-    if isinstance(ids, basestring):
+    if isinstance(ids, str):
         ids = [ids]
     for id_ in ids:
         Trasher(self._getOb(id_)).trash()
 
 
 def manage_delObjects(self, ids=None, REQUEST=None):
-    if is_trash_profile_installed() and \
-       not within_link_integrity_check() and \
-       not called_from_ZMI(REQUEST) and \
-       not is_trash_disabled() and \
-       not is_migrating_plone_site(self):
+    if (
+        is_trash_profile_installed()
+        and not within_link_integrity_check()
+        and not called_from_ZMI(REQUEST)
+        and not is_trash_disabled()
+        and not is_migrating_plone_site(self)
+    ):
         return self.manage_trashObjects(ids=ids, REQUEST=REQUEST)
     else:
         return self.manage_immediatelyDeleteObjects(ids=ids, REQUEST=REQUEST)
 
 
 def manage_immediatelyDeleteObjects(self, ids=None, REQUEST=None):
-    """Immediately delete an object instead of only trashing it.
-    """
+    """Immediately delete an object instead of only trashing it."""
     return self._old_manage_delObjects(ids=ids, REQUEST=REQUEST)
 
 
@@ -53,19 +55,30 @@ def searchResults(self, REQUEST=None, **kw):
     # - True => only return trashed objects
     # - False => return trashed objects (includes not properly indexed objects)
     # - None => return all objects, do not filter
-    kw.setdefault('trashed', False)
 
-    if kw['trashed'] is False:
-        kw['trashed'] = [False, None]
-    elif kw['trashed'] is None:
-        kw['trashed'] = [True, False, None]
+    default = False
+    # Ensure trashed in query is used in setting keyword
+    if REQUEST is not None and "trashed" in REQUEST:
+        default = REQUEST["trashed"]
 
-    return self._old_searchResults(REQUEST, **kw)
+    kw.setdefault("trashed", default)
+
+    if kw["trashed"] is False:
+        kw["trashed"] = [False]
+    elif kw["trashed"] is None:
+        kw["trashed"] = [True, False]
+    results = self._old_searchResults(REQUEST, **kw)
+
+    # print(f"searchResults: {REQUEST}\n{kw}\n{','.join([r.id for r in results])}")
+    return results
 
 
 def _getFieldObjects(self, *args, **kwargs):
-    return filter(lambda obj: not ITrashed.providedBy(obj),
-                  self._old__getFieldObjects(*args, **kwargs))
+    return [
+        obj
+        for obj in self._old__getFieldObjects(*args, **kwargs)
+        if not ITrashed.providedBy(obj)
+    ]
 
 
 def getRawActionAdapter(self, *args, **kwargs):

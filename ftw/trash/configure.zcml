@@ -8,10 +8,9 @@
   <five:registerPackage package="." initialize=".initialize" />
   <i18n:registerTranslations directory="locales" />
 
-  <include file="lawgiver.zcml" zcml:condition="installed ftw.lawgiver" />
+  <include file="profiles.zcml" />
   <include file="patches.zcml" />
   <include file="permissions.zcml" />
-  <include file="profiles.zcml" />
   <include package=".browser" />
 
   <adapter factory=".indexers.trashed_indexer" name="trashed" />
