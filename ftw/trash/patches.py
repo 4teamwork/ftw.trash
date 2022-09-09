@@ -67,8 +67,10 @@ def searchResults(self, REQUEST=None, **kw):
         kw["trashed"] = [False]
     elif kw["trashed"] is None:
         kw["trashed"] = [True, False]
+    results = self._old_searchResults(REQUEST, **kw)
 
-    return self._old_searchResults(REQUEST, **kw)
+    # print(f"searchResults: {REQUEST}\n{kw}\n{','.join([r.id for r in results])}")
+    return results
 
 
 def _getFieldObjects(self, *args, **kwargs):
